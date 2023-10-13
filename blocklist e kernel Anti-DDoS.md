@@ -16,7 +16,17 @@ net.ipv4.conf.*.rp_filter=1: Esta variável impede que o servidor responda a pac
 
 net.ipv4.conf.*.accept_redirects=0: Esta variável impede que o servidor aceite pacotes ICMP Redirect. Os pacotes ICMP Redirect são usados pelos atacantes para redirecionar o tráfego de rede para seus próprios servidores.
 net.ipv4.conf.*.accept_source_route=0: Esta variável impede que o servidor aceite pacotes com roteamento de origem. Os pacotes com roteamento de origem são usados pelos atacantes para rotear o tráfego de rede por meio de seus próprios servidores.
+
 net.ipv4.icmp_echo_ignore_broadcasts=1: Esta variável impede que o servidor responda a pings direcionados ao endereço de broadcast. Os pings direcionados ao endereço de broadcast são usados pelos atacantes para amplificar ataques de Smurf.
+
 net.ipv4.tcp_syncookies=1: Esta variável ativa os SYN Cookies. Os SYN Cookies são usados para mitigar ataques de TCP SYN Flood.
+
 net.ipv4.tcp_timestamps=1: Esta variável desativa a notificação do tempo contínuo de operação do sistema. Isso pode dificultar para que os atacantes identifiquem a versão do kernel do servidor.
+
 Para usar este script, você precisaria salvá-lo como um arquivo com a extensão .sh e executá-lo como root. Por exemplo, você poderia salvar o script como anti-ddos.sh e executá-lo com o seguinte comando:
+
+sudo bash anti-ddos.sh
+
+O script irá baixar e combinar as listas de blocklists, e então adicionar as regras ao iptables. Ele também irá configurar as variáveis de sysctl especificadas.
+
+É importante observar que este script é apenas um ponto de partida. Você pode precisar ajustá-lo para atender às suas necessidades específicas. Por exemplo, você pode precisar adicionar ou remover blocklists, ou pode precisar alterar as configurações de sysctl.
