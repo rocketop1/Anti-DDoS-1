@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Crie conjuntos IPSET para Europa e Brasil
+ipset create europe hash:net
+ipset create brazil hash:net
+
+# Adicione faixas de IPs associadas à Europa
+wget -O - https://iptodns.com/api/ip/country/EU | xargs -I {} ipset add europe {}
+
+# Adicione faixas de IPs associadas ao Brasil
+wget -O - https://iptodns.com/api/ip/country/BR | xargs -I {} ipset add brazil {}
+
+# Crie uma regra iptables para permitir tráfego de Europa e Brasil
+iptables -A INPUT -m set --match-set europe src -j ACCEPT
+iptables -A INPUT -m set --match-set brazil src -j ACCEPT
+
+# Bloqueie todo o tráfego não especificado
+iptables -A INPUT -j DROP
+
+# Salve as configurações
+service iptables save
+service iptables restart
