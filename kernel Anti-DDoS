@@ -40,9 +40,6 @@ sysctl -w fs.file-max=2097152 # Número máximo de file descriptors
 # Define o tamanho máximo da fila de entrada do dispositivo de rede.
 sysctl -w net.core.netdev_max_backlog=262144 # Tamanho máximo da fila de entrada do dispositivo de rede
 
-# ... (continuar com comentários para as demais configurações)
-# ... (comentários anteriores)
-
 # Define o tamanho máximo do buffer de recebimento padrão para sockets.
 sysctl -w net.core.rmem_default=31457280 # Tamanho máximo do buffer de recebimento padrão
 
@@ -76,9 +73,6 @@ sysctl -w net.ipv4.neigh.default.gc_interval=5 # Intervalo para execução do co
 # Define o tempo em segundos que uma entrada de vizinho pode ficar na tabela sem ser acessada antes de ser removida.
 sysctl -w net.ipv4.neigh.default.gc_stale_time=120 # Tempo antes de uma entrada de vizinho ser removida
 
-# ... (continuar com comentários para as demais configurações)
-# ... (comentários anteriores)
-
 # Define o número máximo de conexões de acompanhamento de conexão que o sistema pode ter.
 sysctl -w net.netfilter.nf_conntrack_max=10000000 # Número máximo de conexões de acompanhamento
 
@@ -108,10 +102,6 @@ sysctl -w net.netfilter.nf_conntrack_tcp_timeout_syn_sent=20 # Tempo de ociosida
 
 # Define o tempo, em segundos, que uma conexão TCP em estado TIME_WAIT pode permanecer ociosa antes de ser fechada.
 sysctl -w net.netfilter.nf_conntrack_tcp_timeout_time_wait=10 # Tempo de ociosidade para conexões TCP em TIME_WAIT
-
-# ... (continuar com comentários para as demais configurações)
-
-# ... (comentários anteriores)
 
 # Desativa o TCP slow start após períodos de inatividade.
 sysctl -w net.ipv4.tcp_slow_start_after_idle=0 # Desativa o TCP slow start após períodos de inatividade
@@ -154,10 +144,6 @@ sysctl -w net.ipv4.tcp_wmem="4096 87380 33554432" # Tamanhos de buffer de envio 
 
 # Define o tamanho mínimo do buffer de envio para o UDP.
 sysctl -w net.ipv4.udp_wmem_min=16384 # Tamanho mínimo do buffer de envio para o UDP
-
-# ... (continuar com comentários para as demais configurações)
-
-# ... (comentários anteriores)
 
 # Define o número máximo de buckets da tabela de temporizadores TCP.
 sysctl -w net.ipv4.tcp_max_tw_buckets=1440000 # Número máximo de buckets da tabela de temporizadores TCP
@@ -215,9 +201,6 @@ sysctl -w net.ipv4.tcp_keepalive_probes=10 # Número máximo de sondas keepalive
 
 # Ativa ou desativa a economia de métricas TCP.
 sysctl -w net.ipv4.tcp_no_metrics_save=1 # Economia de métricas TCP
-
-# ... (continuar com comentários para as demais configurações)
-# ... (comentários anteriores)
 
 # Ativa ou desativa o encaminhamento IP.
 sysctl -w net.ipv4.ip_forward=0 # Desativa o encaminhamento IP
