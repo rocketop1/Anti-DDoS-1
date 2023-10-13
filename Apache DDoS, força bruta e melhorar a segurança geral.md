@@ -10,4 +10,4 @@ O arquivo de configuração do Apache é muito completo e cobre uma ampla gama d
 * **Configuração para Proteger contra Ataques de Força Bruta:** Essas configurações ajudam a proteger seu site contra ataques de força bruta na página de login.
 * **Configuração para Proteger contra Escaneamento de Diretórios:** Essas configurações impedem que os usuários acessem diretamente determinados arquivos e diretórios no seu servidor. Isso pode ajudar a proteger seus arquivos confidenciais e impedir que os usuários explorem seu servidor.
 
-No geral, o arquivo de configuração do Apache que você forneceu é muito seguro e pode ajudar a proteger seu site contra uma ampla gama de ataques.
+No geral, o arquivo de configuração do Apache é muito seguro e pode ajudar a proteger seu site contra uma ampla gama de ataques.
