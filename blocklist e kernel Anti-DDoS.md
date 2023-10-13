@@ -13,6 +13,7 @@ Esta seção do script baixa e combina listas de IPs de blocklists conhecidas. A
 Esta seção do script configura algumas variáveis de sysctl para aumentar a segurança do servidor. As variáveis de sysctl são usadas para controlar o comportamento do kernel do Linux. As variáveis que o script configura são:
 
 net.ipv4.conf.*.rp_filter=1: Esta variável impede que o servidor responda a pacotes com endereços IP de origem falsificados.
+
 net.ipv4.conf.*.accept_redirects=0: Esta variável impede que o servidor aceite pacotes ICMP Redirect. Os pacotes ICMP Redirect são usados pelos atacantes para redirecionar o tráfego de rede para seus próprios servidores.
 net.ipv4.conf.*.accept_source_route=0: Esta variável impede que o servidor aceite pacotes com roteamento de origem. Os pacotes com roteamento de origem são usados pelos atacantes para rotear o tráfego de rede por meio de seus próprios servidores.
 net.ipv4.icmp_echo_ignore_broadcasts=1: Esta variável impede que o servidor responda a pings direcionados ao endereço de broadcast. Os pings direcionados ao endereço de broadcast são usados pelos atacantes para amplificar ataques de Smurf.
