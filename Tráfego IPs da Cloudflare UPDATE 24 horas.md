@@ -57,7 +57,6 @@ Estas linhas salvam as configurações do iptables e as reinicializam.
 
 Para usar este script, você precisará ter os pacotes ipset e iptables instalados em seu sistema. Em seguida, você pode executá-lo 
 
-
 Para usar este script, você precisará ter os pacotes ipset e iptables instalados em seu sistema. Em seguida, você pode executá-lo como root com o seguinte comando:
 
 sudo bash /path/to/script.sh
