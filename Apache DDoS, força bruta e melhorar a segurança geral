@@ -1,0 +1,78 @@
+# Configurações Gerais
+ServerTokens Prod
+ServerSignature Off
+TraceEnable Off
+
+# Configurações de Timeout
+Timeout 60
+KeepAlive On
+MaxKeepAliveRequests 100
+KeepAliveTimeout 5
+
+# Configurações de LimitRequest
+<IfModule mod_reqtimeout.c>
+  RequestReadTimeout header=10-20,MinRate=500 body=10-20,MinRate=500
+</IfModule>
+
+# Configurações de Rate Limiting
+<IfModule mod_qos.c>
+  QS_SrvMaxConnPerIP 20
+  QS_SrvMaxConnClose 60%
+</IfModule>
+
+# Configuração de Security Headers
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set X-XSS-Protection "1; mode=block"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+</IfModule>
+
+# Configuração de Limitação de Conexões por IP
+<IfModule mod_evasive20.c>
+  DOSHashTableSize 3097
+  DOSPageCount 5
+  DOSSiteCount 100
+  DOSPageInterval 1
+  DOSSiteInterval 1
+  DOSBlockingPeriod 600
+  DOSEmailNotify admin@example.com
+</IfModule>
+
+# Configuração de IP Whitelisting/Blacklisting
+<Location "/">
+  <RequireAll>
+    Require all granted
+    Require not ip 192.168.1.1
+    Require ip 10.0.0.0/24
+    Require ip 192.168.2.0/24
+  </RequireAll>
+</Location>
+
+# Configuração para Evitar Hotlinking
+<FilesMatch "\.(jpg|jpeg|png|gif|swf)$">
+  SetEnvIf Referer "seuDominio\.com" hotlink
+  Order deny,allow
+  Deny from all
+  Allow from env=hotlink
+</FilesMatch>
+
+# Configuração para Proteger contra Ataques de Força Bruta
+<Location "/wp-login.php">
+  <IfModule mod_reqtimeout.c>
+    RequestReadTimeout header=10-20,MinRate=500 body=10-20,MinRate=500
+  </IfModule>
+  <IfModule mod_limitipconn.c>
+    <Limit LOGIN>
+      Order deny,allow
+      Deny from all
+      Allow from seuDominio.com
+    </Limit>
+  </IfModule>
+</Location>
+
+# Configuração para Proteger contra Escaneamento de Diretórios
+<FilesMatch "(\.htaccess|\.htpasswd|\.svn|\.git)">
+  Require all denied
+</FilesMatch>
