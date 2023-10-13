@@ -1,0 +1,54 @@
+#!/bin/bash
+
+############ Blocklist bloquear IPs maliciosos e permitir apenas o tráfego de Portugal (DDOS) ##################
+
+###################################################################################################################
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__        IPTables: Linux's Main line of Defense               ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|        IPTables: Linux's way of saying no to DoS kids       ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__                                                             ##    
+# _|___|___|___|___|___|___|___|___|___|___|___|___|        Version 1.0.0 -                                      ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__        IPTables Script created by p0w3r0ff                  ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__        Sources used and Studied;                            ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__     http://ipset.netfilter.org/iptables.man.html            ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__                                                             ##
+###################################################################################################################
+
+# URL para a lista de IPs de Portugal no formato CIDR
+PORTUGAL_IPS_URL="http://www.ipdeny.com/ipblocks/data/countries/pt.zone"
+
+# URL para a lista de IPs maliciosos (substitua pelo URL apropriado)
+BLOCKLIST_URL="https://example.com/malicious-ips.txt"
+
+# Crie conjuntos IPSET para Portugal e para a lista de bloqueio
+ipset create portugal hash:net
+ipset create blocklist hash:ip
+
+# Adicione faixas de IPs associadas a Portugal
+wget -O - $PORTUGAL_IPS_URL | xargs -I {} ipset add portugal {}
+
+# Adicione IPs maliciosos à lista de bloqueio
+wget -O - $BLOCKLIST_URL | xargs -I {} ipset add blocklist {}
+
+# Crie uma regra iptables para permitir tráfego de Portugal
+iptables -A INPUT -m set --match-set portugal src -j ACCEPT
+
+# Crie uma regra iptables para bloquear tráfego de IPs maliciosos
+iptables -A INPUT -m set --match-set blocklist src -j DROP
+
+# Bloqueie todo o tráfego não especificado
+iptables -A INPUT -j DROP
+
+# Salve as configurações
+service iptables save
+service iptables restart
+
+
+
+
+
+
+
