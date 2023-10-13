@@ -1,0 +1,84 @@
+#----------------------------------------------------------#
+# Config                                                   #
+#----------------------------------------------------------#
+
+# URL da lista de ASNs para bloqueio
+ASN_LIST_URLS=("https://example.com/asns1.txt" "https://example.com/asns2.txt")
+
+# Diretório de destino para salvar a lista de IPs
+LIST_DIR="/etc/iptables/"
+
+# Data de validade da lista de ASNs
+ASN_LIST_EXPIRY="2024-01-01"
+
+# Serviços de bad ASN para usar
+BAD_ASN_SERVICES=("spamhaus" "openphish" "malwarepatrol")
+
+#----------------------------------------------------------#
+# Functions                                                #
+#----------------------------------------------------------#
+
+# Função para processar a lista de ASNs e adicionar regras de bloqueio
+processarASN() {
+    local ASN_LIST="$1"
+    local ACTION="$2"
+
+    # Verifica se a lista de ASNs está atualizada
+    if [ "$(date +%s)" -gt "$(date -d "$ASN_LIST_EXPIRY" +%s)" ]; then
+        echo "Lista de ASNs expirada. Obtendo uma nova lista..."
+        baixarASN "$ASN_LIST"
+    fi
+
+    # Adiciona regras de bloqueio
+    for ASN in $(cat "$ASN_LIST"); do
+        iptables -A BLOCK_ASN -m string --string "$ASN" --algo kmp -j "$ACTION"
+    done
+}
+
+# Função para baixar a lista de ASNs
+baixarASN() {
+    local ASN_URL="$1"
+    local ASN_LIST="$2"
+
+    wget -O "$ASN_LIST" "$ASN_URL"
+}
+
+#----------------------------------------------------------#
+# ASN Block Rules                                           #
+#----------------------------------------------------------#
+
+# Criando a chain BLOCK_ASN
+iptables -N BLOCK_ASN
+
+# Processando cada URL da lista de ASN
+for ASN_URL in "${ASN_LIST_URLS[@]}"; do
+    ASN_LIST="${LIST_DIR}$(basename "$ASN_URL")"
+
+    # Baixando a lista de ASN
+    baixarASN "$ASN_URL" "$ASN_LIST"
+
+    # Adicionando regras de bloqueio
+    processarASN "$ASN_LIST" "DROP"
+done
+
+# Adicionando regras de bloqueio para serviços de bad ASN
+for BAD_ASN_SERVICE in "${BAD_ASN_SERVICES[@]}"; do
+    ASN_LIST_URL="https://${BAD_ASN_SERVICE}.org/data/prefixes/full/latest.txt"
+    ASN_LIST="${LIST_DIR}$(basename "$ASN_LIST_URL")"
+
+    # Baixando a lista de ASN
+    baixarASN "$ASN_LIST_URL" "$ASN_LIST"
+
+    # Adicionando regras de bloqueio
+    processarASN "$ASN_LIST" "DROP"
+done
+
+# Adicionando a chain BLOCK_ASN às regras existentes
+iptables -A INPUT -j BLOCK_ASN
+iptables -A OUTPUT -j BLOCK_ASN
+iptables -A FORWARD -j BLOCK_ASN
+
+# Mensagem de conclusão do script
+echo "Regras de ASN configuradas com sucesso!"
+
+exit 0
