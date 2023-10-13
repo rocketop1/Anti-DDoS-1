@@ -1,21 +1,3 @@
-############ EXTRA STUFF TO HELP HIGH TRAFFIC (DDOS) ##################
-
-
-###################################################################################################################
-# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
-# ___|___|___|___|___|___|___|___|___|___|___|___|__        IPTables: Linux's Main line of Defense               ##
-# _|___|___|___|___|___|___|___|___|___|___|___|___|        IPTables: Linux's way of saying no to DoS kids       ##
-# ___|___|___|___|___|___|___|___|___|___|___|___|__                                                             ##    
-# _|___|___|___|___|___|___|___|___|___|___|___|___|        Version 1.0.0 -                                      ##
-# ___|___|___|___|___|___|___|___|___|___|___|___|__        IPTables Script created by p0w3r0ff                  ##
-# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
-# ___|___|___|___|___|___|___|___|___|___|___|___|__        Sources used and Studied;                            ##
-# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
-# ___|___|___|___|___|___|___|___|___|___|___|___|__     http://ipset.netfilter.org/iptables.man.html            ##
-# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
-# ___|___|___|___|___|___|___|___|___|___|___|___|__                                                             ##
-###################################################################################################################
-
 
 Aqui está uma análise e avaliação do script asn:
 
@@ -36,5 +18,3 @@ As listas de ASNs podem não ser atualizadas regularmente Não bloqueia todo o t
 Certifique-se de que as listas de ASNs que você está usando são atualizadas regularmente. Considere adicionar regras adicionais para bloquear o tráfego de ASNs específicos. Teste o script em um ambiente de teste antes de implementá-lo em um ambiente de produção. Sugestões de melhorias
 
 Adicione uma verificação para garantir que as listas de ASNs sejam válidas. Considere usar um algoritmo de correspondência mais eficiente, como o algoritmo de Boyer-Moore. Adicione um mecanismo para permitir que você desative ou reative as regras de bloqueio. No geral, o script é uma boa ferramenta para bloquear tráfego de ASNs maliciosos. Com algumas pequenas melhorias, ele pode ser ainda mais eficaz na proteção de seu sistema
-
-############ EXTRA STUFF TO HELP HIGH TRAFFIC (DDOS) ##################
