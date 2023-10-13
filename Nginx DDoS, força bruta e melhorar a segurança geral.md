@@ -1,9 +1,13 @@
 O arquivo de configuração do Nginx é muito completo e cobre uma ampla gama de aspectos de segurança, incluindo:
 
 * **Configuração para limitar a taxa de solicitações:** Essas configurações limitam o número de solicitações que um único endereço IP pode fazer ao servidor em um determinado período de tempo. Isso pode ajudar a prevenir ataques de negação de serviço (DoS).
+  
 * **Configurações gerais:** Essas configurações definem o tamanho máximo dos buffers de corpo e cabeçalho do cliente, o tempo limite do corpo e do cabeçalho do cliente e o tempo limite de keepalive. Isso pode ajudar a melhorar o desempenho do servidor e prevenir ataques.
+  
 * **Configuração de rate limiting:** Essas configurações limitam o número de solicitações que um único endereço IP pode fazer a um determinado local no servidor em um determinado período de tempo. Isso pode ajudar a prevenir ataques DoS.
+  
 * **Configuração de IP Whitelisting/Blacklisting:** Essas configurações permitem que você especifique os endereços IP que estão autorizados e proibidos de acessar o servidor. Isso pode ajudar a proteger seu servidor contra ataques não autorizados.
+  
 * **Configurações adicionais de segurança:** Essas configurações evitam que o servidor revele informações desnecessárias, definem cabeçalhos de segurança e evitam hotlinking e escaneamento de diretórios.
 
 No geral, o arquivo de configuração do Nginx que você forneceu é muito seguro e pode ajudar a proteger seu site contra uma ampla gama de ataques.
