@@ -1,0 +1,56 @@
+#!/bin/bash
+
+############ EXTRA STUFF TO HELP HIGH TRAFFIC (DDOS) ##################
+
+
+###################################################################################################################
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__        IPTables: Linux's Main line of Defense               ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|        IPTables: Linux's way of saying no to DoS kids       ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__                                                             ##    
+# _|___|___|___|___|___|___|___|___|___|___|___|___|        Version 1.0.0 -                                      ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__        IPTables Script created by p0w3r0ff                  ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__        Sources used and Studied;                            ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__     http://ipset.netfilter.org/iptables.man.html            ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__                                                             ##
+###################################################################################################################
+
+# URL para a lista de IPs de Portugal no formato CIDR
+CLOUDFLARE_IPS_URL="https://www.cloudflare.com/ips-v4"
+
+# URLs para as listas de IPs associados a países desejados
+# Substitua "XX" pelos códigos de dois caracteres dos países que deseja bloquear
+BLOCKED_COUNTRIES=("XX")
+BLOCKED_COUNTRIES_URL="http://www.ipdeny.com/ipblocks/data/countries"
+
+# Crie conjuntos IPSET para Cloudflare e para os países bloqueados
+ipset create cloudflare hash:net
+for country in "${BLOCKED_COUNTRIES[@]}"; do
+    ipset create $country hash:net
+done
+
+# Adicione IPs da Cloudflare ao conjunto
+wget -O - $CLOUDFLARE_IPS_URL | xargs -I {} ipset add cloudflare {}
+
+# Adicione IPs dos países bloqueados aos conjuntos correspondentes
+for country in "${BLOCKED_COUNTRIES[@]}"; do
+    wget -O - "$BLOCKED_COUNTRIES_URL/$country.zone" | xargs -I {} ipset add $country {}
+done
+
+# Crie regras iptables para permitir tráfego da Cloudflare
+iptables -A INPUT -m set --match-set cloudflare src -j ACCEPT
+
+# Crie regras iptables para bloquear tráfego dos países específicos
+for country in "${BLOCKED_COUNTRIES[@]}"; do
+    iptables -A INPUT -m set --match-set $country src -j DROP
+done
+
+# Bloqueie todo o tráfego não especificado
+iptables -A INPUT -j DROP
+
+# Salve as configurações
+service iptables save
+service iptables restart
