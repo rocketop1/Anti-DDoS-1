@@ -1,0 +1,69 @@
+#!/bin/bash
+
+# Lista de URLs dos serviços de blocklist
+declare -A blocklist_urls=(
+    [all]="https://lists.blocklist.de/lists/all.txt"
+    [bruteforcelogin]="https://lists.blocklist.de/lists/bruteforcelogin.txt"
+    [mail]="https://lists.blocklist.de/lists/mail.txt"
+    [firehol1]="https://iplists.firehol.org/files/firehol_level1.netset"
+    [firehol2]="https://iplists.firehol.org/files/firehol_level2.netset"
+    [firehol3]="https://iplists.firehol.org/files/firehol_level3.netset"
+    [firehol4]="https://iplists.firehol.org/files/firehol_level4.netset"
+    [firehol_web]="https://iplists.firehol.org/files/firehol_webclient.netset"
+    [firehol_proxies]="https://iplists.firehol.org/files/firehol_proxies.netset"
+    [spamhaus]="https://www.spamhaus.org/drop/drop.txt"
+    [blocklist_de]="https://lists.blocklist.de/lists/zbdl.txt"
+    [emergingthreats]="https://rules.emergingthreats.net/fwrules/emerging-Block-IPs.txt"
+    [binarydefense]="https://www.binarydefense.com/banlist.txt"
+    [feodo]="https://feodotracker.abuse.ch/blocklist/?download=ipblocklist"
+    [ransomwaretracker]="https://ransomwaretracker.abuse.ch/downloads/RW_IPBL.txt"
+    [autoshun]="https://www.autoshun.org/files/shunlist.csv"
+    [dshield]="https://www.dshield.org/ipsascii.html"
+    [zeustracker]="https://zeustracker.abuse.ch/blocklist.php?download=ipblocklist"
+    [herrbischoff]="https://raw.githubusercontent.com/herrbischoff/awesome-ipsum/master/ips.txt"
+    [ipdeny]="http://www.ipdeny.com/ipblocks/data/countries/all-zones.tar.gz"
+    [malc0de]="http://malc0de.com/bl/IP_Blacklist.txt"
+    [malwaredomainlist]="https://www.malwaredomainlist.com/hostslist/ip.txt"
+    [openbl]="https://www.openbl.org/lists/base.txt"
+    [ciarmy]="http://cinsscore.com/list/ci-badguys.txt"
+    [blocklist_net_ua]="https://blocklist.net.ua/blocklist.csv"
+    [blocklist_ru]="https://www.blocklist.de/downloads/export-ips_all.txt"
+    [blocklist_top]="https://lists.blocklist.de/lists/top-100.txt"
+    [blocklist_ips]="https://lists.blocklist.de/lists/ips.txt"
+    [blocklist_edu]="https://lists.blocklist.de/lists/edu.txt"
+    [blocklist_psh]="https://lists.blocklist.de/lists/psh.txt"
+)
+
+# Adicione mais URLs aqui conforme necessário
+
+# Diretório onde as listas serão salvas
+blocklist_dir="/diretorio"
+
+# Arquivo temporário para armazenar as listas antes da fusão
+temp_file="/tempfile"
+
+# Função para verificar e criar diretórios, se necessário
+check_and_create_directory() {
+    if [ ! -d "$1" ]; then
+        mkdir -p "$1"
+    fi
+}
+
+# Verifica e cria os diretórios necessários
+check_and_create_directory "$blocklist_dir"
+
+# Itera sobre as URLs e baixa as listas
+for url in "${blocklist_urls[@]}"; do
+    curl -sS "$url" | grep -v ';' >> "$temp_file"
+done
+
+# Remove duplicatas e ordena a lista
+sort -u "$temp_file" > "$blocklist_dir/blocklist_combined.txt"
+
+# Limpa os arquivos temporários
+rm "$temp_file"
+
+# Atualiza as regras do iptables com os IPs da blocklist
+while read -r ip; do
+    iptables -A INPUT -s "$ip" -j DROP
+done < "$blocklist_dir/blocklist_combined.txt"
