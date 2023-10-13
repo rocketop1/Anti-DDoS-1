@@ -1,16 +1,33 @@
 ############ EXTRA STUFF TO HELP HIGH TRAFFIC (DDOS) ##################
 
+
+###################################################################################################################
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__        IPTables: Linux's Main line of Defense               ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|        IPTables: Linux's way of saying no to DoS kids       ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__                                                             ##    
+# _|___|___|___|___|___|___|___|___|___|___|___|___|        Version 1.0.0 -                                      ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__        IPTables Script created by p0w3r0ff                  ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__        Sources used and Studied;                            ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__     http://ipset.netfilter.org/iptables.man.html            ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__                                                             ##
+###################################################################################################################
+
+
 Aqui está uma análise e avaliação do script asn:
 
-Análise
+#Análise
 
 O script é bem escrito e funcional. Ele usa boas práticas de programação, como comentários e funções, e é bem documentado. O script bloqueia o tráfego de ASNs maliciosos usando o módulo de string do iptables.
 
-Avaliação
+#Avaliação
 
 O script é uma boa ferramenta para bloquear tráfego de ASNs maliciosos. Com algumas pequenas melhorias, ele pode ser ainda mais eficaz na proteção de seu sistema.
 
-Pontos fortes
+#Pontos fortes
 
 Bem escrito e funcional Usa boas práticas de programação Bem documentado Bloqueia o tráfego de ASNs maliciosos Pontos fracos
 
