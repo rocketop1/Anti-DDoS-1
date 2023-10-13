@@ -3,12 +3,12 @@ script de proteção anti-DDoS que pode ser usado para fortalecer o primeiro lay
 Aqui está uma explicação mais detalhada de cada seção do script:
 
 #----------------------------------------------------------#
-# Proteção Anti-DDoS: Reforçando o Primeiro Layer           #
+ Proteção Anti-DDoS: Reforçando o Primeiro Layer          
 #----------------------------------------------------------#
 Esta seção do script baixa e combina listas de IPs de blocklists conhecidas. As blocklists são listas de IPs que são conhecidos por serem usados para ataques DDoS. O script também permite que você especifique uma lista de países que deseja permitir o tráfego, para que você possa evitar bloquear tráfego legítimo.
 
 #----------------------------------------------------------#
-#   Firewall kernel Anti-DDoS: Reforçando /sysctl.conf     #
+  Firewall kernel Anti-DDoS: Reforçando /sysctl.conf     
 #----------------------------------------------------------#
 Esta seção do script configura algumas variáveis de sysctl para aumentar a segurança do servidor. As variáveis de sysctl são usadas para controlar o comportamento do kernel do Linux. As variáveis que o script configura são:
 
