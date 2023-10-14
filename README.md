@@ -13,11 +13,11 @@ Os scripts incorporam uma variedade de serviços e regras, abordando as seguinte
 
 * Fail2Ban: Implementa regras para detectar e mitigar tentativas de intrusão, protegendo contra ataques de força bruta.
 
-* ModSecurity: Aplica regras de segurança da aplicação web para proteger contra ameaças como injeção de SQL, XSS e outros ataques comuns.
+* ModSecurity: Aplica regras de segurança da aplicação web para proteger contra ameaças como injeção de SQL, XSS e outros ataques.
 
 * iptables: Configura regras de firewall para controlar o tráfego de rede e proteger contra ameaças específicas.
 
-* MOD_EVASION: Implementa configurações para evasão de modos de ataque específicos, melhorando a segurança contra certos tipos de ataques.
+* MOD_EVASION: configurações para evasão de modos de ataque específicos, melhorando a segurança contra certos tipos de ataques.
 
 * Kernel: Realiza ajustes no kernel do sistema para otimizar o desempenho e fortalecer a segurança.
 
