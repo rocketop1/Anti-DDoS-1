@@ -1,23 +1,5 @@
 #!/bin/bash
 
-############ EXTRA STUFF TO HELP HIGH TRAFFIC (DDOS) ##################
-
-
-###################################################################################################################
-# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
-# ___|___|___|___|___|___|___|___|___|___|___|___|__        IPTables: Linux's Main line of Defense               ##
-# _|___|___|___|___|___|___|___|___|___|___|___|___|        IPTables: Linux's way of saying no to DoS kids       ##
-# ___|___|___|___|___|___|___|___|___|___|___|___|__                                                             ##    
-# _|___|___|___|___|___|___|___|___|___|___|___|___|        Version 1.0.0 -                                      ##
-# ___|___|___|___|___|___|___|___|___|___|___|___|__        IPTables Script created by p0w3r0ff                  ##
-# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
-# ___|___|___|___|___|___|___|___|___|___|___|___|__        Sources used and Studied;                            ##
-# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
-# ___|___|___|___|___|___|___|___|___|___|___|___|__     http://ipset.netfilter.org/iptables.man.html            ##
-# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
-# ___|___|___|___|___|___|___|___|___|___|___|___|__                                                             ##
-###################################################################################################################
-
 #----------------------------------------------------------#
 # Update de Pacotes  e Logs                                #
 #----------------------------------------------------------#
@@ -224,6 +206,96 @@ sudo iptables -A INPUT -p tcp --dport 80 -j ACCEPT
 sudo iptables -A INPUT -p tcp --dport 443 -j ACCEPT
 sudo iptables -A INPUT -j DROP
 # Configura o iptables para permitir tráfego nos portos 22, 80 e 443, bloqueando todo o resto.
+
+#----------------------------------------------------------#
+# Proteção contra ataques específicos no iptables           #
+#----------------------------------------------------------#
+
+log "Configurando proteção contra ataques SYN/ACK..."
+# Proteção contra ataques SYN/ACK
+sudo iptables -A INPUT -p tcp --syn -m limit --limit 1/s --limit-burst 3 -j ACCEPT
+sudo iptables -A INPUT -p tcp --syn -j DROP
+# A primeira regra permite apenas uma solicitação SYN por segundo (limite de burst de 3), ajudando a mitigar ataques SYN.
+# A segunda regra descarta todos os pacotes SYN restantes.
+
+log "Configurando proteção contra ataques de flood ICMP (ping)..."
+# Proteção contra ataques de flood ICMP (ping)
+sudo iptables -A INPUT -p icmp --icmp-type echo-request -m limit --limit 1/s -j ACCEPT
+sudo iptables -A INPUT -p icmp --icmp-type echo-request -j DROP
+# A primeira regra permite apenas uma solicitação ICMP (ping) por segundo.
+# A segunda regra descarta todas as solicitações ICMP (ping) restantes.
+
+log "Configurando proteção contra ataques de flood UDP..."
+# Proteção contra ataques de flood UDP
+sudo iptables -A INPUT -p udp -m limit --limit 10/s -j ACCEPT
+sudo iptables -A INPUT -p udp -j DROP
+# A primeira regra permite apenas 10 solicitações UDP por segundo.
+# A segunda regra descarta todas as solicitações UDP restantes.
+
+log "Configurando bloqueio de conexões inválidas..."
+# Bloqueia conexões inválidas
+sudo iptables -A INPUT -m state --state INVALID -j DROP
+
+log "Configurando proteção contra ataques de força bruta (SSH)..."
+# Proteção contra ataques de força bruta (SSH)
+sudo iptables -A INPUT -p tcp --dport 22 -m state --state NEW -m recent --set
+sudo iptables -A INPUT -p tcp --dport 22 -m state --state NEW -m recent --update --seconds 60 --hitcount 4 -j DROP
+
+log "Configurando proteção contra ping da morte..."
+# Proteção contra ping da morte
+sudo iptables -A INPUT -p icmp --icmp-type echo-request -m limit --limit 1/s -j ACCEPT
+sudo iptables -A INPUT -p icmp --icmp-type echo-request -j DROP
+
+log "Configurando bloqueio de tráfego multicast e broadcast..."
+# Bloqueia tráfego multicast e broadcast
+sudo iptables -A INPUT -m pkttype --pkt-type broadcast -j DROP
+sudo iptables -A INPUT -m pkttype --pkt-type multicast -j DROP
+
+log "Configurando proteção contra tráfego de loopback falso..."
+# Proteção contra tráfego de loopback falso
+sudo iptables -A INPUT -i lo -s 127.0.0.0/8 -j DROP
+
+log "Configurando bloqueio de pacotes com endereços IP de origem falsificados (spoofing)..."
+# Bloqueia pacotes com endereços IP de origem falsificados (spoofing)
+sudo iptables -A INPUT -s 10.0.0.0/8 -j DROP
+sudo iptables -A INPUT -s 172.16.0.0/12 -j DROP
+sudo iptables -A INPUT -s 192.168.0.0/16 -j DROP
+
+log "Configurando bloqueio de tráfego de saída com endereços IP de origem falsificados (spoofing)..."
+# Bloqueia tráfego de saída com endereços IP de origem falsificados (spoofing)
+sudo iptables -A OUTPUT -d 10.0.0.0/8 -j DROP
+sudo iptables -A OUTPUT -d 172.16.0.0/12 -j DROP
+sudo iptables -A OUTPUT -d 192.168.0.0/16 -j DROP
+
+log "Configuração de proteção contra ataques específicos concluída."
+
+# Bloqueia conexões inválidas
+sudo iptables -A INPUT -m state --state INVALID -j DROP
+
+# Proteção contra ataques de força bruta (SSH)
+sudo iptables -A INPUT -p tcp --dport 22 -m state --state NEW -m recent --set
+sudo iptables -A INPUT -p tcp --dport 22 -m state --state NEW -m recent --update --seconds 60 --hitcount 4 -j DROP
+
+# Proteção contra ping da morte
+sudo iptables -A INPUT -p icmp --icmp-type echo-request -m limit --limit 1/s -j ACCEPT
+sudo iptables -A INPUT -p icmp --icmp-type echo-request -j DROP
+
+# Bloqueia tráfego multicast e broadcast
+sudo iptables -A INPUT -m pkttype --pkt-type broadcast -j DROP
+sudo iptables -A INPUT -m pkttype --pkt-type multicast -j DROP
+
+# Proteção contra tráfego de loopback falso
+sudo iptables -A INPUT -i lo -s 127.0.0.0/8 -j DROP
+
+# Bloqueia pacotes com endereços IP de origem falsificados (spoofing)
+sudo iptables -A INPUT -s 10.0.0.0/8 -j DROP
+sudo iptables -A INPUT -s 172.16.0.0/12 -j DROP
+sudo iptables -A INPUT -s 192.168.0.0/16 -j DROP
+
+# Bloqueia tráfego de saída com endereços IP de origem falsificados (spoofing)
+sudo iptables -A OUTPUT -d 10.0.0.0/8 -j DROP
+sudo iptables -A OUTPUT -d 172.16.0.0/12 -j DROP
+sudo iptables -A OUTPUT -d 192.168.0.0/16 -j DROP
 
 #----------------------------------------------------------#
 # Configuração de Blocklists                                #
