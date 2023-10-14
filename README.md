@@ -7,7 +7,7 @@ Mais informações sobre o projeto podem ser encontradas em https://cyber-gamers
 
 **Descrição:**
 
-Este repositório contém scripts e configurações de segurança para proteger sistemas contra todos os tipos de ataques DDoS.
+Este repositório contém scripts e configurações de segurança para proteger sistemas contra todos os tipos de ataques.
 
 **Objetivos:**
 
