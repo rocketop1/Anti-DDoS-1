@@ -1,9 +1,15 @@
 Este script é um excelente ponto de partida para proteger seu servidor contra ataques. Ele combina várias técnicas, incluindo:
 
-O script que você forneceu é uma versão atualizada do script anterior. Ele inclui as seguintes alterações:
+Este script é um excelente ponto de partida para proteger seu servidor contra ataques. Ele combina várias técnicas, incluindo:
+
+* **Filtragem de IP:** O script baixa e combina várias listas de IPs de fontes confiáveis. Essas listas incluem endereços IP de servidores conhecidos por serem usados ​​em ataques. O script usa o iptables para bloquear o tráfego de entrada desses endereços IP.
+  
+* **ModSecurity:** O script configura o ModSecurity, um módulo de segurança para o Apache. O ModSecurity pode ajudar a proteger seu servidor contra ataques de injeção de código, ataques de cross-site scripting (XSS) e outros ataques.
 
 * O script agora usa uma função para baixar e combinar as listas. Isso torna o script mais legível e fácil de manter.
+  
 * O script agora só atualiza as listas se o arquivo não existir ou tiver mais de 48 horas. Isso ajuda a evitar que o script seja executado com frequência, o que pode afetar o desempenho do servidor.
+  
 * O script agora usa GeoIP para obter a localização geográfica dos IPs. Isso permite que você permita o tráfego de apenas países específicos.
 
 Aqui estão algumas dicas para usar este script com segurança:
