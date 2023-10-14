@@ -1,5 +1,3 @@
-Claro, aqui está a reescrita do texto em português de Portugal:
-
 **Proteção contra ataques DDoS:**
 
 Estes scripts implementam um firewall usando o iptables para proteger o servidor associado Cyber Gamers.
