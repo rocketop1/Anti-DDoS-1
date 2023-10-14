@@ -289,6 +289,36 @@ sudo iptables -A OUTPUT -d 192.168.0.0/16 -j DROP
 log "Configuração de proteção contra ataques específicos concluída."
 
 #----------------------------------------------------------#
+# Proteção contra DDoS no nível do Kernel                   #
+#----------------------------------------------------------#
+
+msg "Configurando proteção contra DDoS no nível do Kernel..."
+
+# Habilita proteção contra SYN-flood
+sudo sysctl -w net.ipv4.tcp_syncookies=1
+sudo sysctl -w net.ipv4.tcp_max_syn_backlog=2048
+sudo sysctl -w net.ipv4.tcp_synack_retries=2
+sudo sysctl -w net.ipv4.tcp_syn_retries=5
+
+# Habilita proteção contra ICMP-flood
+sudo sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=1
+sudo sysctl -w net.ipv4.icmp_ignore_bogus_error_responses=1
+
+# Limita o número de conexões por IP
+sudo sysctl -w net.ipv4.tcp_max_orphans=1024
+sudo sysctl -w net.ipv4.tcp_max_tw_buckets=1440000
+sudo sysctl -w net.ipv4.tcp_orphan_retries=1
+
+# Limita o número de conexões simultâneas por IP
+sudo sysctl -w net.ipv4.ip_local_port_range="1024 65535"
+sudo sysctl -w net.ipv4.tcp_tw_reuse=1
+sudo sysctl -w net.ipv4.tcp_tw_recycle=1
+
+# Proteção contra ataques amplification/reflection
+sudo sysctl -w net.ipv4.icmp_echo_ignore_all=1
+sudo sysctl -w net.ipv4.icmp_ignore_bogus_error_messages=1
+
+#----------------------------------------------------------#
 # Configuração de Blocklists                                #
 #----------------------------------------------------------#
 
