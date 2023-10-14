@@ -14,7 +14,8 @@ O script funciona da seguinte forma:
 5. Adiciona os endereços IP da lista de bloqueio ao iptables para bloqueá-los.
 6. Configura limites de taxa no Nginx ou no Apache para limitar o número de solicitações que um único IP pode fazer por segundo.
 7. Neste script, a função update_blocklist é chamada para baixar e atualizar a lista de bloqueio.
-8. A verificação da última modificação do arquivo combined_blocklist.txt é feita para determinar se a lista de bloqueio está desatualizada (mais antiga que 48 horas). Se estiver desatualizada, a lista é atualizada automaticamente antes de serem aplicadas as regras do iptables.
+
+A verificação da última modificação do arquivo combined_blocklist.txt é feita para determinar se a lista de bloqueio está desatualizada (mais antiga que 48 horas). Se estiver desatualizada, a lista é atualizada automaticamente antes de serem aplicadas as regras do iptables.
 
 Este script é apenas um ponto de partida. Você pode personalizar as configurações para atender às suas necessidades específicas.
 
