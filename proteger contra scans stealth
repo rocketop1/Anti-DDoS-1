@@ -1,0 +1,87 @@
+#!/bin/bash
+
+############ EXTRA STUFF TO HELP HIGH TRAFFIC (DDOS) ##################
+
+###################################################################################################################
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__        IPTables: Linux's Main line of Defense               ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|        IPTables: Linux's way of saying no to DoS kids       ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__                                                             ##    
+# _|___|___|___|___|___|___|___|___|___|___|___|___|        Version 1.0.0 -                                      ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__        IPTables Script created by p0w3r0ff                  ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__        Sources used and Studied;                            ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__     http://ipset.netfilter.org/iptables.man.html            ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__                                                             ##
+###################################################################################################################
+
+# Função para exibir mensagens
+msg() {
+    echo -e ">>> $1"
+}
+
+# Função para instalar o iptables se necessário
+install_iptables() {
+    if ! command -v iptables &>/dev/null; then
+        msg "Instalando iptables..."
+        sudo apt-get update
+        sudo apt-get install -y iptables
+    else
+        msg "Iptables já instalado."
+    fi
+}
+
+# Configuração inicial
+install_iptables
+
+# Configuração do iptables
+msg "Configurando iptables..."
+sudo iptables -F
+sudo iptables -P INPUT DROP
+sudo iptables -P FORWARD DROP
+sudo iptables -P OUTPUT ACCEPT
+
+# Adiciona regras para registrar e descartar pacotes com flags inadequadas
+msg "Configurando regras contra scans stealth..."
+sudo iptables -N FW_STEALTHSCAN 2>/dev/null
+sudo iptables -N ANTI_STEALTHSCAN
+sudo iptables -N ANTI_STEALTHSCAN_
+sudo iptables -N ANTI_STEALTHSCAN__
+sudo iptables -A FW_STEALTHSCAN -j ANTI_STEALTHSCAN
+sudo iptables -A ANTI_STEALTHSCAN -i e+ -p tcp -m state --state NEW -j ANTI_STEALTHSCAN_
+sudo iptables -A ANTI_STEALTHSCAN -i p+ -p tcp -m state --state NEW -j ANTI_STEALTHSCAN_
+sudo iptables -A ANTI_STEALTHSCAN -i w+ -p tcp -m state --state NEW -j ANTI_STEALTHSCAN_
+sudo iptables -A ANTI_STEALTHSCAN_ -p tcp --dport 0:1023 -j RETURN
+# SYN + ACK when NEW
+sudo iptables -A ANTI_STEALTHSCAN_ -p tcp -m state --state NEW --tcp-flags SYN,ACK SYN,ACK -j ANTI_STEALTHSCAN__
+# FIN/PSH/URG without ACK
+sudo iptables -A ANTI_STEALTHSCAN_ -p tcp --tcp-flags ACK,FIN FIN -j ANTI_STEALTHSCAN__
+sudo iptables -A ANTI_STEALTHSCAN_ -p tcp --tcp-flags ACK,PSH PSH -j ANTI_STEALTHSCAN__
+sudo iptables -A ANTI_STEALTHSCAN_ -p tcp --tcp-flags ACK,URG URG -j ANTI_STEALTHSCAN__
+# SYN + FIN
+sudo iptables -A ANTI_STEALTHSCAN_ -p tcp --tcp-flags SYN,FIN SYN,FIN -j ANTI_STEALTHSCAN__
+# SYN + RST
+sudo iptables -A ANTI_STEALTHSCAN_ -p tcp --tcp-flags SYN,RST SYN,RST -j ANTI_STEALTHSCAN__
+# FIN + RST
+sudo iptables -A ANTI_STEALTHSCAN_ -p tcp --tcp-flags FIN,RST FIN,RST -j ANTI_STEALTHSCAN__
+# ALL
+sudo iptables -A ANTI_STEALTHSCAN_ -p tcp --tcp-flags ALL ALL -j ANTI_STEALTHSCAN__
+# nmap Null scans / no flags
+sudo iptables -A ANTI_STEALTHSCAN_ -p tcp --tcp-flags ALL NONE -j ANTI_STEALTHSCAN__
+# nmap FIN stealth scan
+sudo iptables -A ANTI_STEALTHSCAN_ -p tcp --tcp-flags ALL FIN -j ANTI_STEALTHSCAN__
+# FIN + URG + PSH
+sudo iptables -A ANTI_STEALTHSCAN_ -p tcp --tcp-flags ALL FIN,PSH,URG -j ANTI_STEALTHSCAN__
+# XMAS
+sudo iptables -A ANTI_STEALTHSCAN_ -p tcp --tcp-flags ALL SYN,RST,ACK,FIN,URG -j ANTI_STEALTHSCAN__
+sudo iptables -A ANTI_STEALTHSCAN_ -p tcp --tcp-flags ALL SYN,RST,ACK,FIN,URG,PSH -j ANTI_STEALTHSCAN__
+sudo iptables -A ANTI_STEALTHSCAN__ -m limit --limit 5/min -j LOG --log-level debug --log-prefix '[IPTABLES STEALTHSCAN] : '
+sudo iptables -A ANTI_STEALTHSCAN__ -j TRACK_ATTACKER
+sudo iptables -A ANTI_STEALTHSCAN__ -j DROP
+
+# Salva as configurações do iptables para persistência
+sudo iptables-save > /etc/iptables/rules.v4
+
+msg "Configurações do iptables aplicadas com sucesso!"
