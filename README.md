@@ -9,21 +9,21 @@ Mais informações sobre o projeto podem ser encontradas em https://cyber-gamers
 Este repositório contém um conjunto abrangente de scripts projetados para fortalecer a segurança e melhorar o desempenho do seu servidor.
 Os scripts incorporam uma variedade de serviços e regras, abordando as seguintes áreas-chave:
 
-Nginx e Apache: Configurações específicas para servidores web líderes para otimização de desempenho e segurança.
+* Nginx e Apache: Configurações específicas para servidores web líderes para otimização de desempenho e segurança.
 
-Fail2Ban: Implementa regras para detectar e mitigar tentativas de intrusão, protegendo contra ataques de força bruta.
+* Fail2Ban: Implementa regras para detectar e mitigar tentativas de intrusão, protegendo contra ataques de força bruta.
 
-ModSecurity: Aplica regras de segurança da aplicação web para proteger contra ameaças como injeção de SQL, XSS e outros ataques comuns.
+* ModSecurity: Aplica regras de segurança da aplicação web para proteger contra ameaças como injeção de SQL, XSS e outros ataques comuns.
 
-iptables: Configura regras de firewall para controlar o tráfego de rede e proteger contra ameaças específicas.
+* iptables: Configura regras de firewall para controlar o tráfego de rede e proteger contra ameaças específicas.
 
-MOD_EVASION: Implementa configurações para evasão de modos de ataque específicos, melhorando a segurança contra certos tipos de ataques.
+* MOD_EVASION: Implementa configurações para evasão de modos de ataque específicos, melhorando a segurança contra certos tipos de ataques.
 
-Kernel: Realiza ajustes no kernel do sistema para otimizar o desempenho e fortalecer a segurança.
+* Kernel: Realiza ajustes no kernel do sistema para otimizar o desempenho e fortalecer a segurança.
 
-geoip e ipset: Utiliza informações geográficas para bloquear tráfego de países específicos, adicionando uma camada adicional de segurança.
+* geoip e ipset: Utiliza informações geográficas para bloquear tráfego de países específicos, adicionando uma camada adicional de segurança.
 
-Blocklists: Integra diversas listas de bloqueio (blocklists) para prevenir acessos de IPs maliciosos conhecidos.
+* Blocklists: Integra diversas listas de bloqueio (blocklists) para prevenir acessos de IPs maliciosos conhecidos.
 
 
 **Objetivos:**
