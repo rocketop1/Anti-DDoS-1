@@ -3,7 +3,7 @@
 Estes scripts implementam um firewall usando o iptables para proteger o servidor associado Cyber Gamers.
 Foi desenvolvido pelo poweroff e testado contra ataques DDoS pela comunidade.
 Mais informações sobre o projeto podem ser encontradas em https://cyber-gamers.org/
-Os scripts usam serviços e regras do Nginx, Apache, Fail2Ban, ModSecurity, iptables, MOD_EVASION, KERNE, GEOIP e IPSET.
+* Os scripts usam serviços e regras do Nginx, Apache, Fail2Ban, ModSecurity, iptables, MOD_EVASION, kernel, geoip, ipset e blocklists
 
 **Descrição:**
 
