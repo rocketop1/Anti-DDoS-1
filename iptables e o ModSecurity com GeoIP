@@ -1,0 +1,62 @@
+#!/bin/bash
+
+# URL das listas (substitua pelos URLs reais)
+LIST_URLS=(
+    "https://www.spamhaus.org/drop/drop.txt"
+    "https://feeds.dshield.org/top10-2.txt"
+    "https://www.openbl.org/lists/base.txt"
+    "https://talosintelligence.com/documents/ip-blacklist"
+    "https://lists.blocklist.de/lists/all.txt"
+)
+
+# Nome do arquivo de saída
+OUTPUT_FILE="combined_blocklist.txt"
+
+# Diretório onde o script está localizado
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Limpar regras existentes
+iptables -F
+iptables -X
+
+# Definir política padrão para DROP (bloquear tudo por padrão)
+iptables -P INPUT DROP
+iptables -P FORWARD DROP
+iptables -P OUTPUT ACCEPT
+
+# Permitir tráfego na interface de loopback
+iptables -A INPUT -i lo -j ACCEPT
+iptables -A OUTPUT -o lo -j ACCEPT
+
+# Permitir tráfego SSH (substitua PORTA_SSH pelo número da porta desejado)
+iptables -A INPUT -p tcp --dport PORTA_SSH -j ACCEPT
+
+# Permitir tráfego HTTP e HTTPS
+iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+
+# Função para baixar e combinar as listas
+update_lists() {
+    for url in "${LIST_URLS[@]}"; do
+        wget -O - "$url" | grep -Eo '([0-9]{1,3}\.){3}[0-9]{1,3}' >> "$OUTPUT_FILE"
+    done
+    sort -u -o "$OUTPUT_FILE" "$OUTPUT_FILE"
+}
+
+# Atualizar as listas apenas se o arquivo não existir ou tiver mais de 48 horas
+if [ ! -e "$OUTPUT_FILE" ] || [ "$(find "$OUTPUT_FILE" -mmin +2880)" ]; then
+    update_lists
+fi
+
+# Adicionar IPs ao iptables
+while IFS= read -r ip; do
+    iptables -A INPUT -s "$ip" -j DROP
+done < "$OUTPUT_FILE"
+
+# Configurar ModSecurity (substitua o caminho do arquivo de configuração conforme necessário)
+echo "Include modsecurity.conf" >> /etc/apache2/apache2.conf
+
+# Reiniciar Apache para aplicar as configurações do ModSecurity
+service apache2 restart
+
+echo "Script concluído!"
