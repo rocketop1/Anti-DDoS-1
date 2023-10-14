@@ -1,6 +1,6 @@
-#----------------------------------------------------------#
+
 #              Proteção Anti-DDoS: Reforçando              #
-#----------------------------------------------------------#
+
 
 
 Este script implementa um firewall utilizando o iptables para proteger o servidor associado ao site Cyber Gamers.
