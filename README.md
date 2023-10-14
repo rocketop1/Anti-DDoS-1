@@ -1,13 +1,8 @@
+ **Proteção Anti-DDoS:**
 
-#              Proteção Anti-DDoS: Reforçando              #
-
-
-
-Este script implementa um firewall utilizando o iptables para proteger o servidor associado ao site Cyber Gamers.
-Foi desenvolvido pelos autores poweroff e testado contra ataques DDoS pela comunidade.
+EsteS scriptS implementaM um firewall utilizando o iptables para proteger o servidor associado Cyber Gamers.
+Foi desenvolvido pelo poweroff e testado contra ataques DDoS pela comunidade.
 Mais informações sobre o projeto podem ser encontradas em https://cyber-gamers.org/
-
-Claro, aqui está uma descrição para o seu repositório de proteção contra ataques DDoS:
 
 **Descrição:**
 
@@ -25,6 +20,7 @@ Este repositório contém scripts e configurações de segurança para proteger 
     * Scripts para configurar firewalls, sistemas de detecção de intrusão e outros sistemas de segurança.
     * Scripts para monitorar o tráfego de rede e detectar ataques DDoS.
     * Scripts para mitigar os efeitos de ataques DDoS.
+      
 * **Configurações de segurança:**
     * Modelos de configuração de segurança para diferentes sistemas e aplicações.
     * Guias de configuração passo a passo.
@@ -115,4 +111,4 @@ ddos_mitigation_rule "block_high_volume_traffic" {
 
 Este modelo de configuração de segurança configura um firewall para permitir apenas o tráfego HTTP e HTTPS, um sistema de detecção de intrusão para bloquear ataques SYN flood e um sistema de mitigação de ataques DDoS para bloquear tráfego de alto volume.
 
-Espero que esta descrição seja útil para você.
+
