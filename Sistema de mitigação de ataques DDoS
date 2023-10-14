@@ -1,0 +1,37 @@
+# Sistema de mitigação de ataques DDoS
+
+############ EXTRA STUFF TO HELP HIGH TRAFFIC (DDOS) ##################
+
+###################################################################################################################
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__        IPTables: Linux's Main line of Defense               ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|        IPTables: Linux's way of saying no to DoS kids       ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__                                                             ##    
+# _|___|___|___|___|___|___|___|___|___|___|___|___|        Version 1.0.0 -                                      ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__        IPTables Script created by p0w3r0ff                  ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__        Sources used and Studied;                            ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__     http://ipset.netfilter.org/iptables.man.html            ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__                                                             ##
+###################################################################################################################
+
+# Função para bloquear tráfego de alta intensidade
+ddos_mitigation_rule() {
+    rule_name=$1
+    threshold=$2
+    action=$3
+
+    # Verifica se a regra já foi aplicada para evitar duplicatas
+    if ! sudo iptables -C $rule_name &> /dev/null; then
+        # Aplica a regra para bloquear tráfego acima do limiar
+        sudo iptables -A INPUT -p tcp --dport 80 -m recent --update --seconds 1 --hitcount $threshold --name $rule_name -j $action
+        sudo iptables -A INPUT -p tcp --dport 443 -m recent --update --seconds 1 --hitcount $threshold --name $rule_name -j $action
+        sudo iptables -A INPUT -p udp --dport 80 -m recent --update --seconds 1 --hitcount $threshold --name $rule_name -j $action
+        sudo iptables -A INPUT -p udp --dport 443 -m recent --update --seconds 1 --hitcount $threshold --name $rule_name -j $action
+    fi
+}
+
+# Aplica a regra para bloquear tráfego acima do limiar (por exemplo, 1000 pacotes em 1 segundo)
+ddos_mitigation_rule "block_high_volume_traffic" 1000 DROP
