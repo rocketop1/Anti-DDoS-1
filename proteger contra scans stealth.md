@@ -12,7 +12,7 @@ A cadeia `ANTI_STEALTHSCAN__` também contém um destino `TRACK_ATTACKER`, que r
 
 O script também salva a configuração do iptables no arquivo `/etc/iptables/rules.v4`. Isso garante que a configuração seja persistente mesmo que o sistema seja reiniciado.
 
-No geral, o script que você forneceu é uma maneira bem escrita e eficaz de configurar o iptables para proteger contra scans stealth.
+é uma maneira bem escrita e eficaz de configurar o iptables para proteger contra scans stealth.
 
 Aqui está uma explicação mais detalhada de como o script funciona:
 
