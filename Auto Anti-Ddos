@@ -45,7 +45,7 @@ sudo yum check-update
 sudo yum -y update
 
 #----------------------------------------------------------#
-# Verificação e Instalação do Nginx                         #
+# Verificação e Instalação do Nginx                        #
 #----------------------------------------------------------#
 
 # Função para verificar e instalar o Nginx
@@ -172,7 +172,7 @@ EOL
 systemctl restart fail2ban
 
 #----------------------------------------------------------#
-# Verificação e Instalação do ModSecurity                   #
+# Verificação e Instalação do ModSecurity                  #
 #----------------------------------------------------------#
 
 # Função para verificar e instalar o ModSecurity
@@ -227,7 +227,7 @@ sudo iptables -A INPUT -j DROP
 # Configura o iptables para permitir tráfego nos portos 22, 80 e 443, bloqueando todo o resto.
 
 #----------------------------------------------------------#
-# Proteção contra ataques específicos no iptables           #
+# Proteção contra ataques específicos no iptables          #
 #----------------------------------------------------------#
 
 log "Configurando proteção contra ataques SYN/ACK..."
@@ -289,7 +289,7 @@ sudo iptables -A OUTPUT -d 192.168.0.0/16 -j DROP
 log "Configuração de proteção contra ataques específicos concluída."
 
 #----------------------------------------------------------#
-# Proteção contra DDoS no nível do Kernel                   #
+# Proteção contra DDoS no nível do Kernel                  #
 #----------------------------------------------------------#
 
 msg "Configurando proteção contra DDoS no nível do Kernel..."
@@ -321,7 +321,7 @@ sudo sysctl -w net.ipv4.icmp_ignore_bogus_error_messages=1
 msg "Proteção contra DDoS no nível do Kernel configurada com sucesso!"
 
 #----------------------------------------------------------#
-# Configuração de Blocklists                                #
+# Configuração de Blocklists                               #
 #----------------------------------------------------------#
 
 # Lista de serviços de blocklist para usar
@@ -391,7 +391,7 @@ if [ "$(find "$BLOCKLIST_DIR" -name '*.txt' -mtime +2 -print -quit)" ]; then
 fi
 
 #----------------------------------------------------------#
-# Bloqueio de IPs das Blocklists no iptables                 #
+# Bloqueio de IPs das Blocklists no iptables               #
 #----------------------------------------------------------#
 
 msg "Bloqueando IPs das blocklists no iptables..."
@@ -462,6 +462,9 @@ sudo iptables -A INPUT -j BLOCK_IP
 sudo iptables -A OUTPUT -j BLOCK_IP
 sudo iptables -A FORWARD -j BLOCK_IP
 
+#----------------------------------------------------------#
+#                    Mensagem final                        #
+#----------------------------------------------------------#
 
 # Tipos de ataques bloqueados
 msg "Tipos de ataques bloqueados:"
