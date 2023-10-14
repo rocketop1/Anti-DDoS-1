@@ -288,34 +288,6 @@ sudo iptables -A OUTPUT -d 192.168.0.0/16 -j DROP
 
 log "Configuração de proteção contra ataques específicos concluída."
 
-# Bloqueia conexões inválidas
-sudo iptables -A INPUT -m state --state INVALID -j DROP
-
-# Proteção contra ataques de força bruta (SSH)
-sudo iptables -A INPUT -p tcp --dport 22 -m state --state NEW -m recent --set
-sudo iptables -A INPUT -p tcp --dport 22 -m state --state NEW -m recent --update --seconds 60 --hitcount 4 -j DROP
-
-# Proteção contra ping da morte
-sudo iptables -A INPUT -p icmp --icmp-type echo-request -m limit --limit 1/s -j ACCEPT
-sudo iptables -A INPUT -p icmp --icmp-type echo-request -j DROP
-
-# Bloqueia tráfego multicast e broadcast
-sudo iptables -A INPUT -m pkttype --pkt-type broadcast -j DROP
-sudo iptables -A INPUT -m pkttype --pkt-type multicast -j DROP
-
-# Proteção contra tráfego de loopback falso
-sudo iptables -A INPUT -i lo -s 127.0.0.0/8 -j DROP
-
-# Bloqueia pacotes com endereços IP de origem falsificados (spoofing)
-sudo iptables -A INPUT -s 10.0.0.0/8 -j DROP
-sudo iptables -A INPUT -s 172.16.0.0/12 -j DROP
-sudo iptables -A INPUT -s 192.168.0.0/16 -j DROP
-
-# Bloqueia tráfego de saída com endereços IP de origem falsificados (spoofing)
-sudo iptables -A OUTPUT -d 10.0.0.0/8 -j DROP
-sudo iptables -A OUTPUT -d 172.16.0.0/12 -j DROP
-sudo iptables -A OUTPUT -d 192.168.0.0/16 -j DROP
-
 #----------------------------------------------------------#
 # Configuração de Blocklists                                #
 #----------------------------------------------------------#
