@@ -6,8 +6,25 @@ Mais informações sobre o projeto podem ser encontradas em https://cyber-gamers
 * Os scripts usam serviços e regras do Nginx, Apache, Fail2Ban, ModSecurity, iptables, MOD_EVASION, kernel, geoip, ipset e blocklists
 
 **Descrição:**
+Este repositório contém um conjunto abrangente de scripts projetados para fortalecer a segurança e melhorar o desempenho do seu servidor.
+Os scripts incorporam uma variedade de serviços e regras, abordando as seguintes áreas-chave:
 
-Este repositório contém scripts e configurações de segurança para proteger sistemas contra todos os tipos de ataques.
+Nginx e Apache: Configurações específicas para servidores web líderes para otimização de desempenho e segurança.
+
+Fail2Ban: Implementa regras para detectar e mitigar tentativas de intrusão, protegendo contra ataques de força bruta.
+
+ModSecurity: Aplica regras de segurança da aplicação web para proteger contra ameaças como injeção de SQL, XSS e outros ataques comuns.
+
+iptables: Configura regras de firewall para controlar o tráfego de rede e proteger contra ameaças específicas.
+
+MOD_EVASION: Implementa configurações para evasão de modos de ataque específicos, melhorando a segurança contra certos tipos de ataques.
+
+Kernel: Realiza ajustes no kernel do sistema para otimizar o desempenho e fortalecer a segurança.
+
+geoip e ipset: Utiliza informações geográficas para bloquear tráfego de países específicos, adicionando uma camada adicional de segurança.
+
+Blocklists: Integra diversas listas de bloqueio (blocklists) para prevenir acessos de IPs maliciosos conhecidos.
+
 
 **Objetivos:**
 
@@ -112,4 +129,4 @@ ddos_mitigation_rule "block_high_volume_traffic" {
 
 Este modelo de configuração de segurança configura um firewall para permitir apenas o tráfego HTTP e HTTPS, um sistema de detecção de intrusão para bloquear ataques SYN flood e um sistema de mitigação de ataques DDoS para bloquear tráfego de alto volume.
 
-
+Este repositório contém scripts e configurações de segurança para proteger sistemas contra todos os tipos de ataques.
