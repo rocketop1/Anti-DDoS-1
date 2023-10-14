@@ -1,0 +1,358 @@
+#!/bin/bash
+
+#----------------------------------------------------------#
+# Update de Pacotes  e Logs                                #
+#----------------------------------------------------------#
+
+# Definindo o caminho do arquivo de log
+LOG_FILE="/var/log/security_script.log"
+
+# Função para registrar mensagens no log e exibir no console
+log() {
+    local message="$1"
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $message" >> "$LOG_FILE"
+    echo "$message"
+}
+
+# Função para exibir mensagens no console e registrar no log
+msg() {
+    local message="$1"
+    echo "$message"
+    log "$message"
+}
+
+msg "Atualizando pacotes..."
+sudo yum check-update
+sudo yum -y update
+
+#----------------------------------------------------------#
+# Verificação e Instalação do Nginx                         #
+#----------------------------------------------------------#
+
+# Função para verificar e instalar o Nginx
+instalarNginx() {
+    if ! command -v nginx &> /dev/null; then
+        msg "Nginx não está instalado. Deseja instalá-lo? (y/n)"
+        read -r INSTALL_NGINX
+
+        if [ "$INSTALL_NGINX" = "y" ]; then
+            # Comando para instalar o Nginx (pode variar dependendo do sistema)
+            sudo yum install -y nginx
+
+            # Reinicia o Nginx após a instalação
+            sudo systemctl restart nginx
+
+            msg "Nginx instalado e reiniciado com sucesso."
+        else
+            msg "Instalação do Nginx cancelada. Saindo do script."
+            exit 1
+        fi
+    fi
+}
+
+instalarNginx
+
+# Configuração do Nginx com melhores práticas de segurança
+sudo tee /etc/nginx/conf.d/security-best-practices.conf > /dev/null <<EOL
+# Desativa o envio do header "Server"
+server_tokens off;
+
+# Configurações de segurança para evitar ataques comuns
+if (\$request_method !~ ^(GET|HEAD|POST)$) {
+    return 444; # Resposta sem resposta para outros métodos
+}
+
+if (\$host ~* "\.(doc|log|mdb|sql|tar|txt)$") {
+    return 403; # Bloqueia acessos a extensões específicas
+}
+
+location ~ /\. {
+    deny all; # Bloqueia acesso a arquivos ocultos/diretórios
+    access_log off;
+    log_not_found off;
+}
+
+# Configurações de segurança para proteger contra injeção de scripts
+location ~* \.(php|pl|py|jsp|asp|sh|cgi)$ {
+    return 403;
+}
+
+# Desativa o diretório de navegação
+autoindex off;
+
+# Configurações adicionais de segurança podem ser adicionadas aqui
+
+server {
+    listen 80 default_server;
+    server_name _;
+
+    location / {
+        # Limitar a taxa de solicitação para proteger contra DDoS
+        limit_req zone=one burst=5;
+
+        # Configurações adicionais do local...
+
+        # Configuração para proteger contra ataques SYN/ACK
+        limit_conn conn_limit_per_ip 10;
+        limit_conn conn_limit_per_server 100;
+    }
+}
+EOL
+
+# Reinicia o Nginx para aplicar as configurações
+sudo systemctl restart nginx
+
+#----------------------------------------------------------#
+# Verificação e Instalação do Fail2Ban                     #
+#----------------------------------------------------------#
+
+# Função para verificar e instalar o Fail2Ban
+instalarFail2Ban() {
+    if ! command -v fail2ban-client &> /dev/null; then
+        msg "Fail2Ban não está instalado. Deseja instalá-lo? (y/n)"
+        read -r input
+        if [ "$input" == "y" ]; then
+            sudo yum -y install fail2ban
+            msg "Fail2Ban instalado com sucesso."
+        else
+            msg "Instalação do Fail2Ban abortada."
+            exit 1
+        fi
+    fi
+}
+
+instalarFail2Ban
+
+# Configura o Fail2Ban para monitorar logs do NGINX para autenticação HTTP
+msg "# Configurações Fail2Ban" | sudo tee -a /etc/fail2ban/jail.local
+msg "[nginx-http-auth]" | sudo tee -a /etc/fail2ban/jail.local
+msg "enabled = true" | sudo tee -a /etc/fail2ban/jail.local
+msg "filter = nginx-http-auth" | sudo tee -a /etc/fail2ban/jail.local
+msg "logpath = /var/log/nginx/error.log" | sudo tee -a /etc/fail2ban/jail.local
+msg "maxretry = 3" | sudo tee -a /etc/fail2ban/jail.local
+msg "bantime = 3600" | sudo tee -a /etc/fail2ban/jail.local
+
+# Configurações para o Fail2Ban
+cat <<EOL > /etc/fail2ban/jail.local
+[DEFAULT]
+ignoreip = 127.0.0.1/8
+bantime = 600
+findtime = 600
+maxretry = 3
+backend = systemd
+enabled = true
+filter = %(__name__)s
+destemail = admin@example.com
+sender = fail2ban@example.com
+mta = sendmail
+protocol = tcp
+action = %(action_mwl)s
+EOL
+
+# Reiniciar o serviço do Fail2Ban
+systemctl restart fail2ban
+
+#----------------------------------------------------------#
+# Verificação e Instalação do ModSecurity                   #
+#----------------------------------------------------------#
+
+# Função para verificar e instalar o ModSecurity
+instalarModSecurity() {
+    if ! command -v modsec-srs-bench &> /dev/null; then
+        msg "ModSecurity não está instalado. Deseja instalá-lo? (y/n)"
+        read -r input
+        if [ "$input" == "y" ]; then
+            sudo yum -y install mod_security
+            msg "ModSecurity instalado com sucesso."
+        else
+            msg "Instalação do ModSecurity abortada."
+            exit 1
+        fi
+    fi
+}
+
+instalarModSecurity
+
+# Configura o ModSecurity seguindo as melhores práticas
+sudo mkdir -p /etc/nginx/modsecurity
+sudo wget -O /etc/nginx/modsecurity/main.conf https://raw.githubusercontent.com/SpiderLabs/ModSecurity/main/modsecurity.conf-recommended
+sudo sed -i 's/SecRuleEngine DetectionOnly/SecRuleEngine On/' /etc/nginx/modsecurity/main.conf
+
+#----------------------------------------------------------#
+# Verificação e Instalação do iptables                     #
+#----------------------------------------------------------#
+
+# Função para verificar e instalar o iptables
+instalarIptables() {
+    if ! command -v iptables &> /dev/null; then
+        msg "iptables não está instalado. Deseja instalá-lo? (y/n)"
+        read -r input
+        if [ "$input" == "y" ]; then
+            sudo yum -y install iptables
+            msg "iptables instalado com sucesso."
+        else
+            msg "Instalação do iptables abortada."
+            exit 1
+        fi
+    fi
+}
+
+instalarIptables
+
+# Configurações iptables (firewall)
+sudo iptables -F
+sudo iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+sudo iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+sudo iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+sudo iptables -A INPUT -j DROP
+# Configura o iptables para permitir tráfego nos portos 22, 80 e 443, bloqueando todo o resto.
+
+#----------------------------------------------------------#
+# Configuração de Blocklists                                #
+#----------------------------------------------------------#
+
+# Lista de serviços de blocklist para usar
+BLOCKLIST_SERVICES=(
+  "https://lists.blocklist.de/lists/all.txt"
+  "https://zeustracker.abuse.ch/blocklist.php?download=badips"
+  "https://www.binarydefense.com/banlist.txt"
+  "https://feodotracker.abuse.ch/blocklist/?download=ipblocklist"
+  "https://www.spamhaus.org/drop/drop.txt"
+  "https://www.spamhaus.org/drop/edrop.txt"
+  "https://check.torproject.org/exit-addresses"
+  "https://ransomwaretracker.abuse.ch/downloads/RW_IPBL.txt"
+  "https://www.autoshun.org/files/shunlist.csv"
+  "https://blocklist.cyberthreatcoalition.org/vetted/domain.txt"
+  "https://blocklist.cyberthreatcoalition.org/vetted/ip.txt"
+  "https://www.dshield.org/feeds/suspiciousdomains_High.txt"
+  "https://rules.emergingthreats.net/fwrules/emerging-Block-IPs.txt"
+  "https://reputation.alienvault.com/reputation.generic"
+  "https://www.blocklist.de/downloads/export-ips_all.txt"
+  "https://sslbl.abuse.ch/blacklist/sslipblacklist.csv"
+  "https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt"
+  "https://gitlab.com/quidsup/notrack-blocklists/raw/master/notrack-blocklist.txt"
+  "https://lists.blocklist.de/lists/bots.txt"
+  "https://www.openbl.org/lists/base.txt"
+  "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/stopforumspam_1d.ipset"
+  "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/stopforumspam_7d.ipset"
+  "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/stopforumspam_30d.ipset"
+)
+
+# Diretório de destino para salvar as listas de blocklist
+BLOCKLIST_DIR="/etc/iptables/blocklists/"
+mkdir -p "$BLOCKLIST_DIR"
+
+# Função para baixar e processar blocklists
+processarBlocklists() {
+    local BLOCKLIST_URL="$1"
+    local OUTPUT_FILE="$BLOCKLIST_DIR/$(basename "$BLOCKLIST_URL")"
+    local TMP_FILE="$BLOCKLIST_DIR/tmp_file"
+
+    # Download a blocklist
+    wget -O "$TMP_FILE" "$BLOCKLIST_URL"
+
+    # Remove IPs duplicados
+    sort -u "$TMP_FILE" > "$OUTPUT_FILE"
+
+    # Limpa o arquivo temporário
+    rm "$TMP_FILE"
+}
+
+# Processa cada serviço de blocklist
+for BLOCKLIST_SERVICE in "${BLOCKLIST_SERVICES[@]}"; do
+    processarBlocklists "$BLOCKLIST_SERVICE"
+done
+
+# Cria uma lista única combinando todas as blocklists
+LISTA_COMBINADA="$BLOCKLIST_DIR/lista_combinada.txt"
+cat "$BLOCKLIST_DIR"/*.txt | sort -u > "$LISTA_COMBINADA"
+
+# Atualização automática das blocklists a cada 48 horas
+if [ "$(find "$BLOCKLIST_DIR" -name '*.txt' -mtime +2 -print -quit)" ]; then
+    msg "Atualizando blocklists..."
+    for BLOCKLIST_SERVICE in "${BLOCKLIST_SERVICES[@]}"; do
+        processarBlocklists "$BLOCKLIST_SERVICE"
+    done
+
+    cat "$BLOCKLIST_DIR"/*.txt | sort -u > "$LISTA_COMBINADA"
+fi
+
+#----------------------------------------------------------#
+# Bloqueio de IPs das Blocklists no iptables                 #
+#----------------------------------------------------------#
+
+msg "Bloqueando IPs das blocklists no iptables..."
+
+# Criando a chain BLOCK_BLOCKLIST
+sudo iptables -N BLOCK_BLOCKLIST
+
+# Adicionando regras de bloqueio para IPs nas blocklists
+while IFS= read -r IP; do
+    sudo iptables -A BLOCK_BLOCKLIST -s "$IP" -j DROP
+done < "$LISTA_COMBINADA"
+
+# Adicionando a chain BLOCK_BLOCKLIST às regras existentes
+sudo iptables -A INPUT -j BLOCK_BLOCKLIST
+sudo iptables -A OUTPUT -j BLOCK_BLOCKLIST
+sudo iptables -A FORWARD -j BLOCK_BLOCKLIST
+
+# Log
+log "Bloqueio de IPs das blocklists no iptables configurado com sucesso!"
+
+# Conta o número total de IPs nas blocklists
+TOTAL_IPS=0
+
+# Função para processar a lista de IPs e adicionar regras de bloqueio
+processarBlocklist() {
+    local BLOCKLIST="$1"
+    local ACTION="$2"
+
+    # Verifica se a lista de IPs está atualizada
+    if [ "$(date +%s)" -gt "$(stat -c %Y "$BLOCKLIST")" ]; then
+        msg "A lista $BLOCKLIST está expirada. Obtendo uma nova lista..."
+        baixarBlocklist "$BLOCKLIST"
+    fi
+
+    # Adiciona regras de bloqueio e conta o número de IPs
+    local NUM_IPS=$(cat "$BLOCKLIST" | wc -l)
+    TOTAL_IPS=$((TOTAL_IPS + NUM_IPS))
+    msg "Adicionando regras de bloqueio para $NUM_IPS IPs da lista $BLOCKLIST..."
+    while IFS= read -r IP; do
+        sudo iptables -A BLOCK_IP -s "$IP" -j "$ACTION"
+    done < "$BLOCKLIST"
+}
+
+# Função para baixar a lista de IPs
+baixarBlocklist() {
+    local BLOCKLIST_URL="$1"
+    local BLOCKLIST="$2"
+
+    wget -O "$BLOCKLIST" "$BLOCKLIST_URL"
+}
+
+# Criando a chain BLOCK_IP
+sudo iptables -N BLOCK_IP
+
+# Processando cada URL da lista de blocklists
+for BLOCKLIST_URL in "${BLOCKLIST_SERVICES[@]}"; do
+    BLOCKLIST="${LIST_DIR}$(basename "$BLOCKLIST_URL")"
+
+    # Baixando a lista de IPs
+    baixarBlocklist "$BLOCKLIST_URL" "$BLOCKLIST"
+
+    # Adicionando regras de bloqueio
+    processarBlocklist "$BLOCKLIST" "DROP"
+done
+
+# Adicionando a chain BLOCK_IP às regras existentes
+sudo iptables -A INPUT -j BLOCK_IP
+sudo iptables -A OUTPUT -j BLOCK_IP
+sudo iptables -A FORWARD -j BLOCK_IP
+
+# Mensagem final
+msg "Configurações aplicadas com sucesso!"
+msg "Serviços instalados: Nginx, Fail2Ban, ModSecurity, iptables"
+msg "Número total de IPs bloqueados: $TOTAL_IPS"
+msg "Obrigado por usar este script!"
+
+exit 0
