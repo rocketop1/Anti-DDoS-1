@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Sistema de mitigação de ataques DDoS
 
 ############ EXTRA STUFF TO HELP HIGH TRAFFIC (DDOS) ##################
@@ -17,19 +19,32 @@
 # ___|___|___|___|___|___|___|___|___|___|___|___|__                                                             ##
 ###################################################################################################################
 
-# Função para bloquear tráfego de alta intensidade
-ddos_mitigation_rule() {
+# Função para exibir mensagens
+msg() {
+    echo -e ">>> $1"
+}
+
+function ddos_mitigation_rule() {
+    # Argumentos:
+    #   $1: rule_name - O nome da regra.
+    #   $2: threshold - O número de pacotes que devem ser correspondidos antes que a regra seja acionada.
+    #   $3: action - A ação a ser tomada quando a regra é acionada.
+
     rule_name=$1
     threshold=$2
     action=$3
 
-    # Verifica se a regra já foi aplicada para evitar duplicatas
-    if ! sudo iptables -C $rule_name &> /dev/null; then
+    # Verifica se a regra já foi aplicada para evitar duplicadas
+    if ! sudo iptables -C INPUT -m recent --name $rule_name &> /dev/null; then
         # Aplica a regra para bloquear tráfego acima do limiar
-        sudo iptables -A INPUT -p tcp --dport 80 -m recent --update --seconds 1 --hitcount $threshold --name $rule_name -j $action
-        sudo iptables -A INPUT -p tcp --dport 443 -m recent --update --seconds 1 --hitcount $threshold --name $rule_name -j $action
-        sudo iptables -A INPUT -p udp --dport 80 -m recent --update --seconds 1 --hitcount $threshold --name $rule_name -j $action
-        sudo iptables -A INPUT -p udp --dport 443 -m recent --update --seconds 1 --hitcount $threshold --name $rule_name -j $action
+        for port in 80 443; do
+            sudo iptables -A INPUT -p tcp --dport $port -m recent --update --seconds 1 --hitcount $threshold --name $rule_name -j $action
+            sudo iptables -A INPUT -p udp --dport $port -m recent --update --seconds 1 --hitcount $threshold --name $rule_name -j $action
+        done
+
+        msg "Regra de mitigação DDoS '$rule_name' aplicada com sucesso."
+    else
+        msg "A regra de mitigação DDoS '$rule_name' já está em vigor."
     fi
 }
 
