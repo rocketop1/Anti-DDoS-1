@@ -1,5 +1,5 @@
 Este script é um excelente ponto de partida para proteger seu servidor contra ataques. Ele combina várias técnicas, incluindo:
-**O script usa uma lista de países que falam português, espanhol e toda a Europa. Você pode personalizar essa lista para atender às suas necessidades específicas.
+* **O script usa uma lista de países que falam português, espanhol e toda a Europa. Você pode personalizar essa lista para atender às suas necessidades específicas.
 
 Este script é um excelente ponto de partida para proteger seu servidor contra ataques. Ele combina várias técnicas, incluindo:
 
