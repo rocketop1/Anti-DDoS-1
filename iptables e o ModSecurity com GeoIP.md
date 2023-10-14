@@ -1,4 +1,5 @@
 Este script é um excelente ponto de partida para proteger seu servidor contra ataques. Ele combina várias técnicas, incluindo:
+**O script usa uma lista de países que falam português, espanhol e toda a Europa. Você pode personalizar essa lista para atender às suas necessidades específicas.
 
 Este script é um excelente ponto de partida para proteger seu servidor contra ataques. Ele combina várias técnicas, incluindo:
 
@@ -30,7 +31,6 @@ Você pode implementar essas sugestões conforme necessário.
 Aqui estão algumas observações específicas sobre o script:
 
 * O uso de GeoIP para permitir o tráfego de apenas países específicos pode ser uma boa maneira de melhorar a segurança do seu servidor. No entanto, é importante ter em mente que isso pode bloquear o tráfego legítimo de usuários de países que não estão na lista.
-* O script usa uma lista de países que falam português, espanhol e toda a Europa. Você pode personalizar essa lista para atender às suas necessidades específicas.
 * O script usa a função `while IFS= read -r ip; do` para ler as linhas do arquivo de saída. Esta função é uma maneira eficiente de ler arquivos de texto.
 
 Espero que isso ajude!
