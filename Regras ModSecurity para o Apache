@@ -1,0 +1,78 @@
+#!/bin/bash
+
+############ EXTRA STUFF TO HELP HIGH TRAFFIC (DDOS) ##################
+
+###################################################################################################################
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__        IPTables: Linux's Main line of Defense               ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|        IPTables: Linux's way of saying no to DoS kids       ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__                                                             ##    
+# _|___|___|___|___|___|___|___|___|___|___|___|___|        Version 1.0.0 -                                      ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__        IPTables Script created by p0w3r0ff                  ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__        Sources used and Studied;                            ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__     http://ipset.netfilter.org/iptables.man.html            ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__                                                             ##
+###################################################################################################################
+
+# Verificar se o ModSecurity está instalado
+if ! command -v apachectl &> /dev/null; then
+    echo "O Apache não está instalado. Instale-o e configure o ModSecurity manualmente."
+    exit 1
+fi
+
+# Instalar o ModSecurity e o ModSecurity para o Apache
+apt-get update
+apt-get install -y libapache2-mod-security2
+
+# Criar um diretório para regras personalizadas
+mkdir /etc/apache2/modsecurity.d
+touch /etc/apache2/modsecurity.d/owasp-crs-custom-rules.conf
+
+# Adicionar regras ModSecurity personalizadas
+cat <<EOL >> /etc/apache2/modsecurity.d/owasp-crs-custom-rules.conf
+
+# --- Início das Regras ModSecurity Personalizadas ---
+
+# Injeção de SQL
+SecRule ARGS|REQUEST_URI "(['\"%])?[sS](elect|leep|load_file|benchmark)[\s\W_]" "id:1001,phase:2,deny,status:500,msg:'SQL Injection Attempt'"
+
+# XSS
+SecRule REQUEST_COOKIES|ARGS_NAMES|ARGS|XML:/* "['\"%<>\&;]" "id:1002,phase:2,deny,status:500,msg:'XSS Attempt'"
+
+# Inclusão de Arquivos
+SecRule ARGS|REQUEST_HEADERS|REQUEST_HEADERS_NAMES "(\.\.\/|etc\/passwd|proc\/self\/environ|etc\/shadow|bin\/bash)" "id:1003,phase:2,deny,status:500,msg:'File Inclusion Attempt'"
+
+# Proteção Geral
+SecRule ARGS|REQUEST_URI|REQUEST_HEADERS|REQUEST_HEADERS_NAMES "(eval\(|system\(|passthru\(|shell_exec\(|exec\(|base64_decode\(|phpinfo\()" "id:1004,phase:2,deny,status:500,msg:'Common Attack Keywords'"
+
+Detectar Tentativas de Comandos de Sistema
+SecRule REQUEST_URI|REQUEST_HEADERS|REQUEST_HEADERS_NAMES "(\/bin\/sh|\/bin\/bash|\/bin\/dash|\/bin\/ash|\/bin\/ksh|\/bin\/csh)" "id:1005,phase:2,deny,status:500,msg:'System Command Execution Attempt'"
+
+Bloquear Envio de Informações Sensíveis
+SecRule REQUEST_COOKIES|ARGS|REQUEST_HEADERS_NAMES "password|credit_card" "id:1006,phase:2,deny,status:500,msg:'Sensitive Information Exposure'"
+
+Bloquear Upload de Arquivos Executáveis:
+SecRule FILES "(\.php|\.pl|\.cgi|\.exe)" "id:1007,phase:2,deny,status:500,msg:'Executable File Upload Attempt'"
+
+Bloquear Escaneamento de Portas com nmap
+SecRule REQUEST_URI "nmap" "id:1008,phase:2,deny,status:500,msg:'Port Scanning Attempt'"
+
+Bloquear Bots de Scraping
+SecRule REQUEST_HEADERS:User-Agent "(bot|crawler)" "id:1009,phase:2,deny,status:500,msg:'Web Scraping Bot'"
+
+Bloquear Tentativas de Força Bruta no Formulário de Login
+SecRule REQUEST_URI "/login" "id:1010,phase:2,deny,status:500,msg:'Brute Force Login Attempt'"
+
+
+
+# --- Fim das Regras ModSecurity Personalizadas ---
+
+EOL
+
+# Reiniciar o Apache para aplicar as configurações
+service apache2 restart
+
+echo "Regras ModSecurity aplicadas com sucesso!"
