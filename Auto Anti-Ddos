@@ -318,6 +318,8 @@ sudo sysctl -w net.ipv4.tcp_tw_recycle=1
 sudo sysctl -w net.ipv4.icmp_echo_ignore_all=1
 sudo sysctl -w net.ipv4.icmp_ignore_bogus_error_messages=1
 
+msg "Proteção contra DDoS no nível do Kernel configurada com sucesso!"
+
 #----------------------------------------------------------#
 # Configuração de Blocklists                                #
 #----------------------------------------------------------#
