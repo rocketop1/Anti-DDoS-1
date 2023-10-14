@@ -430,10 +430,23 @@ sudo iptables -A INPUT -j BLOCK_IP
 sudo iptables -A OUTPUT -j BLOCK_IP
 sudo iptables -A FORWARD -j BLOCK_IP
 
+
+# Tipos de ataques bloqueados
+msg "Tipos de ataques bloqueados:"
+msg "- Ataques SYN/ACK"
+msg "- Ataques de flood ICMP (ping)"
+msg "- Ataques de flood UDP"
+msg "- Conexões inválidas"
+msg "- Ataques de força bruta (SSH)"
+msg "- Ping da morte"
+msg "- Tráfego multicast e broadcast"
+msg "- Tráfego de loopback falso"
+msg "- Pacotes com endereços IP de origem falsificados (spoofing)"
+msg "Número total de FILHOS DA PUTA (IPs) bloqueados: $TOTAL_IPS"
+
 # Mensagem final
 msg "Configurações aplicadas com sucesso!"
 msg "Serviços instalados: Nginx, Fail2Ban, ModSecurity, iptables"
-msg "Número total de IPs bloqueados: $TOTAL_IPS"
 msg "Obrigado por usar este script!"
 
 exit 0
