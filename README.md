@@ -1,4 +1,4 @@
-**Proteção contra ataques DDoS:**
+**Proteção contra ataques DDoS: Tornar a proteção contra ataques DDoS acessível a todos**
 
 Estes scripts implementam um firewall usando o iptables para proteger o servidor associado Cyber Gamers.
 Foi desenvolvido pelo poweroff e testado contra ataques DDoS pela comunidade.
