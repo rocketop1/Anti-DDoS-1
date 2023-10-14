@@ -162,8 +162,8 @@ echo "Bloquear putos desde 2012"
 LOGIN=`cat /etc/ssh/sshd_config | grep '^#\?Port ' | tail -n 1 | sed -e 's/^[^0-9]*\([0-9]\+\).*$/\1/'`
 
 # Processamento por país
-# Permissão: Japão
-LOCAL_COUNTRY_CODE="JP"
+# Permissão: Portugal
+LOCAL_COUNTRY_CODE="PT"
 # - Bloquear: China | Hong Kong | Macau | Coreia do Sul | Coreia do Norte
 BLOCK_COUNTRY_CODE="CN|HK|MO|KR|KP"
 
