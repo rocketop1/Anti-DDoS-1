@@ -1,0 +1,49 @@
+
+Dicas importantes para otimizar o uso do Cloudflare e melhorar a segurança e desempenho do seu site:
+
+Ativar o Proxy (Orange Cloud):
+
+Certifique-se de que o ícone da nuvem laranja esteja ativado para o domínio desejado no painel do Cloudflare. Isso indica que o tráfego está passando pelo sistema de proteção e otimização da Cloudflare.
+
+Configurar DNS Corretamente:
+Verifique se as configurações DNS estão corretas e todos os registros importantes estão cobertos pelo Cloudflare.
+
+SSL/TLS Configuração:
+Utilize SSL/TLS no modo "Full" ou "Full (Strict)" para garantir que a comunicação entre a Cloudflare e seu servidor seja segura.
+
+Configurar Page Rules:
+Utilize Page Rules para controlar o comportamento do tráfego em páginas específicas. Por exemplo, você pode configurar regras de cache, redirecionamento, e até mesmo bloqueio de acesso.
+
+Configurar Rate Limiting:
+Use o recurso de Rate Limiting para proteger contra ataques de exaustão de recursos, limitando o número de solicitações de um único IP em um período de tempo.
+
+Firewall de Aplicativos Web (WAF):
+Ative o WAF para proteger contra ameaças da web, como SQL injection, XSS, e outros ataques comuns.
+
+Configurações de Segurança:
+Explore as configurações de segurança do Cloudflare, como o nível de segurança no painel "Firewall". Ajuste conforme necessário para o equilíbrio entre segurança e usabilidade.
+
+Cache de Conteúdo Estático:
+Aproveite as capacidades de cache da Cloudflare para conteúdo estático. Configure regras de cache conforme necessário para otimizar o desempenho.
+
+Monitoramento Regular:
+Monitore regularmente o painel do Cloudflare para identificar padrões de tráfego, eventos de segurança e otimizações possíveis.
+
+Habilitar Always Online:
+Ative o recurso Always Online para que os visitantes possam acessar versões em cache do seu site, mesmo se o seu servidor estiver temporariamente indisponível.
+
+Desafios CAPTCHA e JS Challenge:
+Considere a ativação de desafios CAPTCHA e JS Challenge para proteger contra tráfego malicioso.
+
+Configuração de Firewall Personalizado:
+Use o Firewall para criar regras personalizadas, bloqueando IPs específicos ou faixas de IPs.
+
+Modo Desenvolvedor:
+Utilize o "Modo Desenvolvedor" quando fizer alterações significativas no site para evitar que essas alterações sejam armazenadas em cache.
+
+Proteção de Email:
+Ative o Proxy para registros de e-mail (MX) para proteger seus servidores de e-mail contra ataques.
+
+Planos de Atendimento de Emergência:
+Esteja preparado para escalar para planos mais avançados da Cloudflare ou entrar em contato com o suporte em caso de ataques DDoS ou outros eventos críticos.
+Certifique-se de revisar a documentação da Cloudflare para obter detalhes específicos sobre cada recurso e como configurá-los de acordo com suas necessidades específicas.
