@@ -1,0 +1,142 @@
+#!/bin/bash
+
+############ EXTRA STUFF TO HELP HIGH TRAFFIC (DDOS) ##################
+
+###################################################################################################################
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__        IPTables: Linux's Main line of Defense               ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|        IPTables: Linux's way of saying no to DoS kids       ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__                                                             ##    
+# _|___|___|___|___|___|___|___|___|___|___|___|___|        Version 1.0.0 -                                      ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__        IPTables Script created by p0w3r0ff                  ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__        Sources used and Studied;                            ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__     http://ipset.netfilter.org/iptables.man.html            ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__                                                             ##
+###################################################################################################################
+
+# Função para exibir mensagens
+msg() {
+    echo -e ">>> $1"
+}
+
+# Função para adicionar regras iptables de rastreamento
+iptables_track_rule() {
+    local track_name=$1
+
+    sudo iptables -N $track_name 2>/dev/null
+    sudo iptables -A $track_name -i e+ -j ${track_name}_
+    sudo iptables -A $track_name -i p+ -j ${track_name}_
+    sudo iptables -A $track_name -i w+ -j ${track_name}_
+}
+
+# Configuração inicial
+instalarIptables() {
+    if ! command -v iptables &> /dev/null; then
+        msg "O iptables não está instalado. Instalando..."
+        sudo apt-get update
+        sudo apt-get install -y iptables
+        msg "Iptables instalado com sucesso."
+    else
+        msg "Iptables já está instalado."
+    fi
+}
+
+# Inicia a configuração
+setup() {
+    instalarIptables
+
+    # Limpando regras anteriores
+    sudo iptables -F
+    sudo iptables -P INPUT DROP
+    sudo iptables -P FORWARD DROP
+    sudo iptables -P OUTPUT ACCEPT
+
+    # Adiciona regras de rastreamento
+    iptables_track_rule "TRACK_PROWLER"
+    iptables_track_rule "TRACK_ATTACKER"
+}
+
+# Registrar o IP que está realizando acessos suspeitos como suspeito
+setup_suspicious_access_tracking() {
+    msg "Configurando sistema de registro de acessos suspeitos..."
+
+    sudo iptables -N TRACK_PROWLER 2>/dev/null
+    sudo iptables -N ANTI_PROWLER
+    sudo iptables -N ANTI_PROWLER_
+    sudo iptables -A TRACK_PROWLER -j ANTI_PROWLER
+    sudo iptables -A ANTI_PROWLER -i e+ -j ANTI_PROWLER_
+    sudo iptables -A ANTI_PROWLER -i p+ -j ANTI_PROWLER_
+    sudo iptables -A ANTI_PROWLER -i w+ -j ANTI_PROWLER_
+    sudo iptables -A ANTI_PROWLER_ -m recent --name prowler-rapid --update --rttl --seconds 10 -j RETURN
+    sudo iptables -A ANTI_PROWLER_ -m recent --name prowler-rapid --set
+    sudo iptables -A ANTI_PROWLER_ \
+                  -m hashlimit \
+                  --hashlimit-name prowler-rapid \
+                  --hashlimit-above 6/m \
+                  --hashlimit-mode srcip \
+                  --hashlimit-htable-expire 10000 \
+                  -j RETURN
+    sudo iptables -A ANTI_PROWLER_ -m recent --name prowler-fast --update --rttl --seconds 60 -j RETURN
+    sudo iptables -A ANTI_PROWLER_ -m recent --name prowler-fast --set
+    sudo iptables -A ANTI_PROWLER_ \
+                  -m hashlimit \
+                  --hashlimit-name prowler-fast \
+                  --hashlimit-above 1/m \
+                  --hashlimit-mode srcip \
+                  --hashlimit-htable-expire 60000 \
+                  -j RETURN
+    sudo iptables -A ANTI_PROWLER_ -m recent --name prowler-medium --update --rttl --seconds 3600 -j RETURN
+    sudo iptables -A ANTI_PROWLER_ -m recent --name prowler-medium --set
+    sudo iptables -A ANTI_PROWLER_ -m recent --name prowler-slow --set
+    msg "Sistema de registro de acessos suspeitos configurado com sucesso!"
+}
+
+# Registrar o IP que está realizando ataques como atacante
+setup_attack_logging() {
+    msg "Configurando sistema de registro de ataques..."
+
+    sudo iptables -N TRACK_ATTACKER 2>/dev/null
+    sudo iptables -N ANTI_ATTACKER
+    sudo iptables -N ANTI_ATTACKER_
+    sudo iptables -A TRACK_ATTACKER -j ANTI_ATTACKER
+    sudo iptables -A ANTI_ATTACKER -i e+ -j ANTI_ATTACKER_
+    sudo iptables -A ANTI_ATTACKER -i p+ -j ANTI_ATTACKER_
+    sudo iptables -A ANTI_ATTACKER -i w+ -j ANTI_ATTACKER_
+    sudo iptables -A ANTI_ATTACKER_ -m recent --name attacker-rapid --update --rttl --seconds 10 -j RETURN
+    sudo iptables -A ANTI_ATTACKER_ -m recent --name attacker-rapid --set
+    sudo iptables -A ANTI_ATTACKER_ \
+                  -m hashlimit \
+                  --hashlimit-name attacker-rapid \
+                  --hashlimit-above 6/m \
+                  --hashlimit-mode srcip \
+                  --hashlimit-htable-expire 10000 \
+                  -j RETURN
+    sudo iptables -A ANTI_ATTACKER_ -m recent --name attacker-fast --update --rttl --seconds 60 -j RETURN
+    sudo iptables -A ANTI_ATTACKER_ -m recent --name attacker-fast --set
+    sudo iptables -A ANTI_ATTACKER_ \
+                  -m hashlimit \
+                  --hashlimit-name attacker-fast \
+                  --hashlimit-above 1/m \
+                  --hashlimit-mode srcip \
+                  --hashlimit-htable-expire 60000 \
+                  -j RETURN
+    sudo iptables -A ANTI_ATTACKER_ -m recent --name attacker-medium --update --rttl --seconds 3600 -j RETURN
+    sudo iptables -A ANTI_ATTACKER_ -m recent --name attacker-medium --set
+    sudo iptables -A ANTI_ATTACKER_ -m recent --name attacker-slow --set
+    msg "Sistema de registro de ataques configurado com sucesso!"
+}
+
+# Função para salvar as configurações do iptables para persistência
+save_iptables() {
+    sudo iptables-save > /etc/iptables/rules.v4
+    msg "Configurações do iptables salvas com sucesso!"
+}
+
+# Executa a configuração
+setup
+setup_suspicious_access_tracking
+setup_attack_logging
+save_iptables
