@@ -1,5 +1,7 @@
 **Proteção contra ataques DDoS: Tornar a proteção contra ataques DDoS acessível a todos**
 
+todos os scripts usam comentarios detalhados do bard.
+
 Estes scripts implementam um firewall usando o iptables para proteger o servidor associado Cyber Gamers.
 Foi desenvolvido pelo poweroff e testado contra ataques DDoS pela comunidade.
 Mais informações sobre o projeto podem ser encontradas em https://cyber-gamers.org/
