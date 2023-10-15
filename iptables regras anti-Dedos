@@ -1,0 +1,122 @@
+#!/bin/bash
+
+############ EXTRA STUFF TO HELP HIGH TRAFFIC (DDOS) ##################
+
+
+###################################################################################################################
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__        IPTables: Linux's Main line of Defense               ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|        IPTables: Linux's way of saying no to DoS kids       ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__                                                             ##    
+# _|___|___|___|___|___|___|___|___|___|___|___|___|        Version 1.0.0 -                                      ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__        IPTables Script created by p0w3r0ff                  ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__        Sources used and Studied;                            ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__     http://ipset.netfilter.org/iptables.man.html            ##
+# _|___|___|___|___|___|___|___|___|___|___|___|___|                                                             ##
+# ___|___|___|___|___|___|___|___|___|___|___|___|__                                                             ##
+###################################################################################################################
+
+# Limpar regras antigas
+iptables -F
+iptables -X
+
+# Variáveis de configuração
+LOG_LIMIT="10/min"
+LOG_LIMIT_BURST="20"
+
+# Criar cadeias personalizadas
+iptables -N TRACK_ATTACKER 2>/dev/null
+iptables -N ANTI_ICMPFLOOD 2>/dev/null
+iptables -N FW_UDPDROP 2>/dev/null
+iptables -N DENY_UDPDROP
+iptables -N DENY_UDPDROP_
+iptables -N FW_TCPDROP 2>/dev/null
+iptables -N DENY_TCPDROP
+iptables -N DENY_TCPDROP_
+iptables -N FW_ICMPDROP 2>/dev/null
+iptables -N DENY_ICMPDROP
+iptables -N DENY_ICMPDROP_
+iptables -N FW_SMTP 2>/dev/null
+iptables -N FW_SSH 2>/dev/null
+iptables -N FW_DNS 2>/dev/null
+iptables -N FW_HTTP 2>/dev/null
+iptables -N FW_HTTPS 2>/dev/null
+iptables -N FIREWALL 2>/dev/null
+
+# Regras padrão
+iptables -P INPUT DROP
+iptables -P FORWARD DROP
+iptables -P OUTPUT ACCEPT
+
+# Ativar rastreamento de atacantes
+iptables -A TRACK_ATTACKER -m recent --name track --set
+iptables -A TRACK_ATTACKER -m recent --name track --rcheck --seconds 60 --hitcount 5 -j LOG --log-prefix '[IPTABLES TRACK_ATTACKER] : '
+iptables -A TRACK_ATTACKER -m recent --name track --rcheck --seconds 60 --hitcount 5 -j DROP
+
+# Proteção contra flood ICMP
+iptables -A ANTI_ICMPFLOOD -p icmp --icmp-type echo-request -m limit --limit 1/s --limit-burst 10 -j ACCEPT
+iptables -A ANTI_ICMPFLOOD -p icmp --icmp-type echo-request -j DROP
+iptables -A FIREWALL -j ANTI_ICMPFLOOD && echo "FIREWALL	ANTI_ICMPFLOOD"
+
+# Detectar e bloquear acessos UDP em portas não autorizadas
+iptables -A FW_UDPDROP -p udp -j DENY_UDPDROP
+iptables -A DENY_UDPDROP -i e+ -j DENY_UDPDROP_
+iptables -A DENY_UDPDROP -i p+ -j DENY_UDPDROP_
+iptables -A DENY_UDPDROP -i w+ -j DENY_UDPDROP_
+
+# Log e descarte pacotes UDP em portas não autorizadas
+iptables -A DENY_UDPDROP -m limit --limit $LOG_LIMIT --limit-burst $LOG_LIMIT_BURST -j LOG --log-level debug --log-prefix '[IPTABLES UDPDROP] : '
+iptables -A DENY_UDPDROP -j TRACK_ATTACKER
+iptables -A DENY_UDPDROP -j DROP
+iptables -A FIREWALL -j FW_UDPDROP && echo "FIREWALL	DENY_UDPDROP"
+
+# Detectar e bloquear acessos TCP em portas não autorizadas
+iptables -A FW_TCPDROP -p tcp -j DENY_TCPDROP
+iptables -A DENY_TCPDROP -i e+ -j DENY_TCPDROP_
+iptables -A DENY_TCPDROP -i p+ -j DENY_TCPDROP_
+iptables -A DENY_TCPDROP -i w+ -j DENY_TCPDROP_
+
+# Log e descarte pacotes TCP em portas não autorizadas
+iptables -A DENY_TCPDROP -m limit --limit $LOG_LIMIT --limit-burst $LOG_LIMIT_BURST -j LOG --log-level debug --log-prefix '[IPTABLES TCPDROP] : '
+iptables -A DENY_TCPDROP -j TRACK_ATTACKER
+iptables -A DENY_TCPDROP -j DROP
+iptables -A FIREWALL -j FW_TCPDROP && echo "FIREWALL	DENY_TCPDROP"
+
+# Detectar e bloquear acessos ICMP em portas não autorizadas
+iptables -A FW_ICMPDROP -p icmp -j DENY_ICMPDROP
+iptables -A DENY_ICMPDROP -i e+ -j DENY_ICMPDROP_
+iptables -A DENY_ICMPDROP -i p+ -j DENY_ICMPDROP_
+iptables -A DENY_ICMPDROP -i w+ -j DENY_ICMPDROP_
+
+# Log e descarte pacotes ICMP em portas não autorizadas
+iptables -A DENY_ICMPDROP -m limit --limit $LOG_LIMIT --limit-burst $LOG_LIMIT_BURST -j LOG --log-level debug --log-prefix '[IPTABLES ICMPDROP] : '
+iptables -A DENY_ICMPDROP -j TRACK_ATTACKER
+iptables -A DENY_ICMPDROP -j DROP
+iptables -A FIREWALL -j FW_ICMPDROP && echo "FIREWALL	DENY_ICMPDROP"
+
+# Liberar a porta SMTP para a interface externa (permitir envio de e-mails)
+iptables -A FW_SMTP -i e+ -p tcp --dport 25 -j ACCEPT
+iptables -A FIREWALL -j FW_SMTP && echo "FIREWALL	FW_SMTP"
+
+# Liberar a porta SSH para a interface interna (permitir acesso SSH)
+iptables -A FW_SSH -i i+ -p tcp --dport 22 -j ACCEPT
+iptables -A FIREWALL -j FW_SSH && echo "FIREWALL	FW_SSH"
+
+# Liberar a porta DNS para a interface interna (permitir consultas DNS)
+iptables -A FW_DNS -i i+ -p udp --dport 53 -j ACCEPT
+iptables -A FW_DNS -i i+ -p tcp --dport 53 -j ACCEPT
+iptables -A FIREWALL -j FW_DNS && echo "FIREWALL	FW_DNS"
+
+# Liberar a porta HTTP para a interface interna (permitir acesso HTTP)
+iptables -A FW_HTTP -i i+ -p tcp --dport 80 -j ACCEPT
+iptables -A FIREWALL -j FW_HTTP && echo "FIREWALL	FW_HTTP"
+
+# Liberar a porta HTTPS para a interface interna (permitir acesso HTTPS)
+iptables -A FW_HTTPS -i i+ -p tcp --dport 443 -j ACCEPT
+iptables -A FIREWALL -j FW_HTTPS && echo "FIREWALL	FW_HTTPS"
+
+# Logar e bloquear tudo que não se enquadra nas regras acima
+iptables -A FIREWALL -m limit --limit $LOG_LIMIT --limit-burst $LOG_LIMIT_BURST -j LOG --log-level debug --log-prefix '[IPTABLES DEFAULT DROP] : '
+iptables -A FIREWALL -j DROP
