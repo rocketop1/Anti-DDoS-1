@@ -110,8 +110,8 @@ service apache2 restart
 
 # Configurar limites de taxa no iptables
 iptables -A INPUT -p tcp -m tcp --syn -m connlimit --connlimit-above 50 -j DROP
-iptables -A INPUT -p tcp -m tcp --dport 80 -i eth0 -m state --state NEW -m recent --set
-iptables -A INPUT -p tcp -m tcp --dport 80 -i eth0 -m state --state NEW -m recent --update --seconds 60 --hitcount 20 -j DROP
+iptables -A INPUT -p tcp -m tcp --dport 443 -i eth0 -m state --state NEW -m recent --set
+iptables -A INPUT -p tcp -m tcp --dport 443 -i eth0 -m state --state NEW -m recent --update --seconds 60 --hitcount 20 -j DROP
 
 # Configurar proteção contra ataques de negação de serviço (DDoS) no ModSecurity
 SecRuleEngine On
